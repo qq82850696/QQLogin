@@ -1,0 +1,23 @@
+#pragma once  
+#define _VERTOSTRING(arg) #arg  
+#define VERTOSTRING(arg) _VERTOSTRING(arg)  
+#define VER_MAIN     1
+#define VER_SUB      20
+#define VER_SUB2     49
+#define VER_BUILD    917
+#define VER_FULL    VER_MAIN.VER_SUB.VER_SUB2.VER_BUILD 
+#define VER_FULL_RC VER_MAIN,VER_SUB,VER_SUB2,VER_BUILD  
+#define STR_VER_FULL    _T(VERTOSTRING(VER_FULL))  
+#define STR_VER_FULL_RC VERTOSTRING(VER_FULL_RC) 
+
+#define CONCAT(a, b)   (a##b)
+#define _VER_FULL    VER_MAIN.VER_SUB
+#define _AN_VERSION  CONCAT(VERTOSTRING(_VER_FULL),VERTOSTRING(VER_SUB2))
+
+#define AN_VERSION _T(VERTOSTRING(_AN_VERSION))
+
+// ���汾
+#define VETCONV(arg) arg
+#define VER_CAT(v1,v2)  VETCONV(v1) ##  VETCONV(v2)
+#define DLL_VER_FULL    VER_MAIN.VER_CAT(VER_SUB,VER_SUB2)
+#define STR_VER_MAIN     _T(VERTOSTRING(DLL_VER_FULL)) 
