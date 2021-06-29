@@ -183,7 +183,7 @@ bool CQQManager::OnEventThreadStrat()
 	CoInitialize(NULL);
 	m_ansoft.CreateObjectEx();
 	TracePrint(_T("OnEventThreadStrat"));
-	ANPLUG_ASSERT(m_ansoft.IsValid(), _T("m_ansoft will be NULL"));
+	ANPLUG_ASSERT(m_ansoft.IsValid(), "m_ansoft will be NULL");
 	InitAdvertisement();
 	TracePrint(_T("启动线程完成"));
 	return m_ansoft.IsValid();

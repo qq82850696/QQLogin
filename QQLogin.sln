@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31019.35
+# Visual Studio 2013
+VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AnPlug", "..\AnPlug\AnPlug\AnPlug.vcxproj", "{C912486B-92C4-4651-982E-2AB9E1C748B1}"
 EndProject
@@ -16,6 +16,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AnUchardet", "..\AnPlug\AnUchardet\AnUchardet.vcxproj", "{DAAFFB7E-A74D-43A3-880B-05E8FE5F13ED}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "htmlcxx", "..\..\..\2345Downloads\htmlcxx-0.86\htmlcxx-0.86\htmlcxx.vcxproj", "{63D82F56-4B5F-4616-A3D7-2E6A4A752316}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinRing0", "..\AnPlug\WinRing0\WinRing0.vcxproj", "{C7F73F7A-27AB-47AC-827F-95E79E1B5355}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -585,6 +587,69 @@ Global
 		{63D82F56-4B5F-4616-A3D7-2E6A4A752316}.ReleaseWithoutAsm|x64.Build.0 = Debug|Win32
 		{63D82F56-4B5F-4616-A3D7-2E6A4A752316}.ReleaseWithoutAsm|x86.ActiveCfg = Release|Win32
 		{63D82F56-4B5F-4616-A3D7-2E6A4A752316}.ReleaseWithoutAsm|x86.Build.0 = Release|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.Debug_MDd|Any CPU.ActiveCfg = Debug|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.Debug_MDd|Itanium.ActiveCfg = Debug|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.Debug_MDd|Mixed Platforms.ActiveCfg = Debug|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.Debug_MDd|Mixed Platforms.Build.0 = Debug|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.Debug_MDd|Win32.ActiveCfg = Debug|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.Debug_MDd|Win32.Build.0 = Debug|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.Debug_MDd|x64.ActiveCfg = Debug|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.Debug_MDd|x86.ActiveCfg = Debug|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.Debug_MDd|x86.Build.0 = Debug|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.Debug|Itanium.ActiveCfg = Debug|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.Debug|Win32.Build.0 = Debug|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.Debug|x64.ActiveCfg = Debug|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.Debug|x86.ActiveCfg = Debug|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.Debug|x86.Build.0 = Debug|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.DLL-Import Debug|Any CPU.ActiveCfg = Debug|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.DLL-Import Debug|Itanium.ActiveCfg = Debug|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.DLL-Import Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.DLL-Import Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.DLL-Import Debug|Win32.ActiveCfg = Debug|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.DLL-Import Debug|Win32.Build.0 = Debug|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.DLL-Import Debug|x64.ActiveCfg = Debug|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.DLL-Import Debug|x86.ActiveCfg = Debug|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.DLL-Import Debug|x86.Build.0 = Debug|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.DLL-Import Release|Any CPU.ActiveCfg = Release|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.DLL-Import Release|Itanium.ActiveCfg = Release|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.DLL-Import Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.DLL-Import Release|Mixed Platforms.Build.0 = Release|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.DLL-Import Release|Win32.ActiveCfg = Release|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.DLL-Import Release|Win32.Build.0 = Release|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.DLL-Import Release|x64.ActiveCfg = Release|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.DLL-Import Release|x86.ActiveCfg = Release|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.DLL-Import Release|x86.Build.0 = Release|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.Release_MD|Any CPU.ActiveCfg = Release|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.Release_MD|Itanium.ActiveCfg = Release|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.Release_MD|Mixed Platforms.ActiveCfg = Release|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.Release_MD|Mixed Platforms.Build.0 = Release|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.Release_MD|Win32.ActiveCfg = Release|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.Release_MD|Win32.Build.0 = Release|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.Release_MD|x64.ActiveCfg = Release|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.Release_MD|x86.ActiveCfg = Release|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.Release_MD|x86.Build.0 = Release|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.Release|Any CPU.ActiveCfg = Release|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.Release|Itanium.ActiveCfg = Release|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.Release|Win32.ActiveCfg = Release|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.Release|Win32.Build.0 = Release|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.Release|x64.ActiveCfg = Release|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.Release|x86.ActiveCfg = Release|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.Release|x86.Build.0 = Release|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.ReleaseWithoutAsm|Any CPU.ActiveCfg = Release|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.ReleaseWithoutAsm|Itanium.ActiveCfg = Release|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.ReleaseWithoutAsm|Mixed Platforms.ActiveCfg = Release|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.ReleaseWithoutAsm|Mixed Platforms.Build.0 = Release|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.ReleaseWithoutAsm|Win32.ActiveCfg = Release|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.ReleaseWithoutAsm|Win32.Build.0 = Release|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.ReleaseWithoutAsm|x64.ActiveCfg = Release|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.ReleaseWithoutAsm|x86.ActiveCfg = Release|Win32
+		{C7F73F7A-27AB-47AC-827F-95E79E1B5355}.ReleaseWithoutAsm|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
