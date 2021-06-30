@@ -35,12 +35,6 @@ CQQManager::CQQManager()
 }
 
 
-CQQManager::CQQManager(const CHNsoft& an) :
-	m_an(an)
-{
-	//m_WinMap.clear();
-}
-
 CQQManager::~CQQManager()
 {
 	CAnDataLocker locker(m_cs);
@@ -69,15 +63,37 @@ void CQQManager::Release()
     m_ansoft.DestoryObject();
 }
 
-void CQQManager::SetPlug(CHNsoft& an)
-{
-	m_an = an;
-}
 
 void CQQManager::SetPlug(CAnSoft& an)
 {
 	UNREFERENCED_PARAMETER(an);
-	m_ansoft = an;
+	m_an = an;
+}
+
+
+bool CQQManager::CheckQQInterface()
+{
+	bool bret = false;
+	tstring retstr = m_an.EnumWindow(NULL, _T("QQ"), _T("TXGuiFoundation"), 1 + 2);
+	if (!retstr.empty())
+	{
+		strings::StringTokenizer token(retstr, _T(","));
+		while (token.hasNext())
+		{
+			long QQWnd = AnStrings::string_castW<long>(token.getNext());
+			if (QQWnd)
+			{
+				CRect rc;
+				::GetWindowRect((HWND)QQWnd, &rc);
+				if (rc.Height() / rc.Width() <= 1)
+				{
+					bret = true;
+					break;
+				}
+			}
+		}
+	}
+	return bret;
 }
 
 //最小化所有QQ窗口
@@ -93,12 +109,12 @@ bool CQQManager::RunQQApp(LPCTSTR pszQQPath, LPCTSTR pszHistoryPath, LPCTSTR psz
 	bool bret = false;
 	CString strHistory, strItem;
 
-	strHistory.Format(L"%s\\%s\\History.db", m_an.GetDir(4).GetBuffer(), pszHistoryPath);
+	strHistory.Format(L"%s\\%s\\History.db", m_an.GetDir(4).c_str(), pszHistoryPath);
 
-	VERIFY(TRUE == m_an.DeleteFile(pszDocPath));
-	VERIFY(TRUE == m_an.CopyFile(strHistory.GetBuffer(), pszDocPath));
-
-	m_an.RunApp(pszQQPath);
+	VERIFY(m_an.DeleteFile(pszDocPath));
+	VERIFY(m_an.CopyFile(strHistory.GetBuffer(), pszDocPath,TRUE));
+	
+	m_an.RunApp(pszQQPath, 0);
 	m_an.DelayEx(nDelay, 2);
 
 	//判断QQ是否启动成功
@@ -118,8 +134,8 @@ bool CQQManager::CloseQQStartWnd()
 	bool bret = false;
 	long hQQEdit = 0;
 	long hQQwnd = 0;
-	AnCString strQQNums = m_an.EnumWindow(0, _T("QQ"), _T("TXGuiFoundation"), 1 + 2);
-	vectorwstring vQQArr = Split(strQQNums.GetBuffer(), _T(","));
+	tstring strQQNums = m_an.EnumWindow(0, _T("QQ"), _T("TXGuiFoundation"), 1 + 2);
+	vectorwstring vQQArr = Split(strQQNums.c_str(), _T(","));
 	vectorwstring::iterator it = vQQArr.begin();
 	for (; it != vQQArr.end(); it++)
 	{
@@ -152,7 +168,7 @@ bool CQQManager::QQIsRunning(LPCTSTR pszQQDocPath, LPCTSTR pszQQ)
 	CStringA strDir = dir;
 	CString strPath;
 	CString strQQMsg;
-	AnCString strLoginTime;
+	tstring strLoginTime;
 	CTimeEx t1, t2;
 	int nPos = strDir.Find('\\', 2);
 	if (nPos > 0)
@@ -164,6 +180,7 @@ bool CQQManager::QQIsRunning(LPCTSTR pszQQDocPath, LPCTSTR pszQQ)
 	//判断文件是否存在,如果存在判断最后修改时间,不存在说明没有登录过
 	if (m_an.IsFileExist(strQQMsg))
 	{
+		
 		strLoginTime = m_an.GetFileTime(strQQMsg, 2);
 		t1 = strLoginTime;
 		LONGLONG nVal = t2.DateDiff(_T("m"), &t1);

@@ -32,22 +32,22 @@ class CQQManager :
 	public CAnQQManager
 {
 private:
-    CHNsoft   m_an;
-	//CAnSoft   m_ansoft;
+	AnCom::CBaseAnsoft m_an;
     AnCom::CBaseAnsoft m_ansoft;
     WindowInfo_Map  m_WinMap;
 	Advertisement_Map m_winMap;
 	CCriticalSectionEx m_cs;
 public:
 	CQQManager();
-	CQQManager(const CHNsoft& an); 
 	virtual ~CQQManager();
 public:
 	virtual void Release();
-	virtual void SetPlug(CHNsoft&  an);
     virtual void SetPlug(AnCom::CAnSoft&  an);
+
 	//操作
 public:
+	//检查QQ登录界面
+	virtual bool CheckQQInterface();
 	//最小化所有QQ窗口
 	virtual BOOL MinimizeQQHwnd();
 	//启动QQ
