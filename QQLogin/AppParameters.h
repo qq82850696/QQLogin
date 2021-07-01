@@ -24,8 +24,9 @@ private:
 	static CAppParameters *_pSelf;
 	QQLoginHistory         _qqLoginHistory;
 	CAppParameters();
-	 ~CAppParameters();
+	
 public:
+	~CAppParameters();
 	//获取当前对象
 	static CAppParameters * GetInstance() { return _pSelf; };
 	//读取参数设置

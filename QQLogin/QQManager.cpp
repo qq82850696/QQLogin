@@ -45,6 +45,7 @@ CQQManager::~CQQManager()
 
     m_WinMap.swap(tmp1);
     m_winMap.swap(tmp2);
+	m_an.DestoryObject();
 	m_ansoft.DestoryObject();
 }
 
@@ -60,6 +61,7 @@ void CQQManager::Release()
 
     m_WinMap.swap(tmp1);
     m_winMap.swap(tmp2);
+	m_an.DestoryObject();
     m_ansoft.DestoryObject();
 }
 
