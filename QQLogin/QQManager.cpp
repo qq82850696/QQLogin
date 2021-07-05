@@ -221,7 +221,7 @@ bool CQQManager::OnEventThreadConclude()
 bool CQQManager::OnEventThreadRun()
 {
 	//等待60秒再查找广告
-	if (Delay(60, 2)) return false;
+	//if (Delay(60, 2)) return false;
 	static size_t nCloseCount = 0;
 
 	Advertisement_Map::iterator itW = m_winMap.begin();
