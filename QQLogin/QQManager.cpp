@@ -87,7 +87,7 @@ bool CQQManager::CheckQQInterface()
 			{
 				CRect rc;
 				::GetWindowRect((HWND)QQWnd, &rc);
-				if (rc.Height() / rc.Width() <= 1)
+				if (rc.Height() / rc.Width() <= 1 && FALSE == m_an.GetWindowState(QQWnd, 3))
 				{
 					bret = true;
 					break;
