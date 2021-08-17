@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "AppParameters.h"
 
 #ifdef _DEBUG
@@ -17,10 +17,10 @@ CAppParameters::CAppParameters()
 
 CAppParameters::~CAppParameters()
 {
-	TracePrint(_T("CAppParameters"));
+	LOG_INFO << _T("CAppParameters");
 }
 
-//¶ÁÈ¡²ÎÊıÉèÖÃ
+//è¯»å–å‚æ•°è®¾ç½®
 bool CAppParameters::getParametersFromXmlTree()
 {
 	if (!_pXmlUserDoc)
@@ -30,13 +30,13 @@ bool CAppParameters::getParametersFromXmlTree()
 	if (!root)
 		return false;
 
-	//¶ÁÈ¡QQµÇÂ¼ÉèÖÃ
+	//è¯»å–QQç™»å½•è®¾ç½®
 	ReadQQLoginHistory(root);
 
 	return true;
 }
 
-//ÊÍ·Å¶ÔÏó
+//é‡Šæ”¾å¯¹è±¡
 void CAppParameters::DestroyInstance()
 {
 	if (_pSelf)
@@ -45,7 +45,7 @@ void CAppParameters::DestroyInstance()
 		_pSelf = nullptr;
 	}
 }
-//¶ÁÈ¡QQµÇÂ¼ÉèÖÃ
+//è¯»å–QQç™»å½•è®¾ç½®
 void CAppParameters::ReadQQLoginHistory(TiXmlNode* node)
 {
 	tinyxml::TiXmlNode* qQLoginHistoryRoot = node->FirstChildElement(ELEMENT_QQLOGIN);
@@ -77,7 +77,7 @@ void CAppParameters::ReadQQLoginHistory(TiXmlNode* node)
 	}
 
 }
-//±£´æQQµÇÂ¼ÉèÖÃ
+//ä¿å­˜QQç™»å½•è®¾ç½®
 bool CAppParameters::WriteQQLoginHistory()
 {
 	if (!_pXmlUserDoc) return false;

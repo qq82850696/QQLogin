@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "WooolAssistX.h"
 
 
@@ -14,14 +14,14 @@ CWooolAssistX::CWooolAssistX()
 
 	StringCchCopy(CBaseScriptProperty::DictPwd, PLUG_PASS_LEN, _T("qweyui9043"));
 	StringCchCopy(CBaseScriptProperty::PicPwd, PLUG_PASS_LEN, _T("qweyui9043"));
-	StringCchCopy(CBaseScriptProperty::DictFiles, PLUG_DICT_LEN, _T("´«ÊÀ2.txt|Woool.txt"));
+	StringCchCopy(CBaseScriptProperty::DictFiles, PLUG_DICT_LEN, _T("ä¼ ä¸–2.txt|Woool.txt"));
 	StringCchCopy(CBaseScriptProperty::RegCode, PLUG_CODE_LEN, _T("lwl796931762cef9a9d3460498fc27373b1f79a1da"));
 
 	CBaseScriptProperty::setFindX = 1024;
 	CBaseScriptProperty::setFindY = 768;
 
 	CWHService::GetWorkDirectory(CBaseScriptProperty::BasePath, MAX_PATH);
-	PathAppend(CBaseScriptProperty::BasePath, _T("´«ÆæÊÀ½ç"));
+	PathAppend(CBaseScriptProperty::BasePath, _T("ä¼ å¥‡ä¸–ç•Œ"));
 	m_an.CreateObjectEx();
 	m_dm.RegPlugin();
 	m_dm.SetPlugin();
@@ -34,12 +34,12 @@ CWooolAssistX::~CWooolAssistX()
 }
 
 
-//°ó¶¨´°¿Ú
+//ç»‘å®šçª—å£
 bool CWooolAssistX::Bind()
 {
 	bool bret = false;
 	long dm_ret = 0;
-	m_hWnd = m_an.FindWindow(_T("WOLIICLIENT"), _T("´«ÆæÊÀ½ç"));
+	m_hWnd = m_an.FindWindow(_T("WOLIICLIENT"), _T("ä¼ å¥‡ä¸–ç•Œ"));
 	if (m_hWnd > 0)
 	{
 		m_dm.SetWindowState(m_hWnd, 12);
@@ -55,7 +55,7 @@ bool CWooolAssistX::Bind()
 	return bret;
 }
 
-//Ò»¼ü»ØÊÕ
+//ä¸€é”®å›æ”¶
 bool CWooolAssistX::OneButtonRecycling()
 {
 	bool bret = false;
@@ -64,13 +64,13 @@ bool CWooolAssistX::OneButtonRecycling()
 	m_an.Delays(100, 200);
 	if (bret)
 	{
-		if (m_dm.FindImg(_T("»ØÊÕÂ¯*.bmp")) > -1)
+		if (m_dm.FindImg(_T("å›æ”¶ç‚‰*.bmp")) > -1)
 		{
 			m_dm.LDClick(m_dm.GetImgX(), m_dm.GetImgY());
 			m_an.Delays(100, 200);
 		}
 
-		retstr = m_dm.WaitStrEx(_T("Ò»¼ü»ØÊÕ"), _T("ffff00-101010"), 1.0f);
+		retstr = m_dm.WaitStrEx(_T("ä¸€é”®å›æ”¶"), _T("ffff00-101010"), 1.0f);
 		vectorwstring vArr = Split(retstr.c_str(), _T("|"));
 		for (vectorwstring::iterator it = vArr.begin(); it != vArr.end(); it++)
 		{
@@ -82,7 +82,7 @@ bool CWooolAssistX::OneButtonRecycling()
 				m_an.Delays(100, 200);
 			}
 		}
-		UsedProperty(_T("ÉùÍû*.bmp"));
+		UsedProperty(_T("å£°æœ›*.bmp"));
 		m_an.Delays(200, 500);
 		CloseDialog(5);
 	}
@@ -91,7 +91,7 @@ bool CWooolAssistX::OneButtonRecycling()
 }
 
 
-//ĞÂÊÖ¸±±¾
+//æ–°æ‰‹å‰¯æœ¬
 bool CWooolAssistX::NewHandFB()
 {
 	bool bret = false;
@@ -99,20 +99,20 @@ bool CWooolAssistX::NewHandFB()
 	CTimeEx t1 = CTimeEx::GetCurrentTime();
 	while (true)
 	{
-		if (m_dm.FindImg(_T("ÏÂÒ»²ã*.bmp")) > -1)
+		if (m_dm.FindImg(_T("ä¸‹ä¸€å±‚*.bmp")) > -1)
 		{
 			t1 = CTimeEx::GetCurrentTime();
 			m_dm.LClick(m_dm.GetImgX() + 30, m_dm.GetImgY() + 50);
 			m_an.Delays(100, 200);
-			//×Ô¶¯´ò¹Ö
+			//è‡ªåŠ¨æ‰“æ€ª
 			AutoFightStrange(TRUE);
-			//Ò»¼ü»ØÊÕ
+			//ä¸€é”®å›æ”¶
 			OneButtonRecycling();
 		}
 		CAnTimeSpan total = CTimeEx::GetCurrentTime() - t1;
 		if (total.GetTotalMinutes() > 5)
 		{
-			//»Ø³Ç
+			//å›åŸ
 			m_dm.KeyPressChar(_T("1"));
 			break;
 
@@ -122,18 +122,18 @@ bool CWooolAssistX::NewHandFB()
 	return bret;
 }
 
-//Ë¢¸±±¾
+//åˆ·å‰¯æœ¬
 bool CWooolAssistX::FightStranges()
 {
 	bool bret = false;
 	CTimeEx t1 = CTimeEx::GetCurrentTime();
-	//Ë¢3´ó¸±±¾
+	//åˆ·3å¤§å‰¯æœ¬
 	FightStranges3();
 	while (true)
 	{
 		CAnTimeSpan total = CTimeEx::GetCurrentTime() - t1;
 		if (total.GetTotalMinutes() >= 30)
-		{	//Ë¢3´ó¸±±¾
+		{	//åˆ·3å¤§å‰¯æœ¬
 			FightStranges3();
 			t1 = CTimeEx::GetCurrentTime();
 		}
@@ -143,17 +143,17 @@ bool CWooolAssistX::FightStranges()
 	return bret;
 }
 
-//Ë¢3´ó¸±±¾
+//åˆ·3å¤§å‰¯æœ¬
 void CWooolAssistX::FightStranges3()
 {
-	CString strArr[] = { _T("´«ÆæÊÀ½ç"), _T("ÃÎ»Ã¹ú¶È"),_T("Ó¢ĞÛÄê´ú") };
+	CString strArr[] = { _T("ä¼ å¥‡ä¸–ç•Œ"), _T("æ¢¦å¹»å›½åº¦"),_T("è‹±é›„å¹´ä»£") };
 	for (size_t i = 0; i < _countof(strArr); i++)
 	{
 		m_dm.KeyPressChar(_T("1"));
 		m_an.Delays(100, 200);
-		if (strArr[i].Find(_T("Ó¢ĞÛ")) >= 0)
+		if (strArr[i].Find(_T("è‹±é›„")) >= 0)
 		{
-			//ÏòÏÂÒÆ¶¯
+			//å‘ä¸‹ç§»åŠ¨
 			m_dm.MoveToEx(630, 650, 30, 30);
 			m_dm.Delays(1000, 2000);
 		}
@@ -174,20 +174,20 @@ void CWooolAssistX::FightStranges3()
 				m_an.Delays(100, 200);
 			} 
 			m_an.Delays(1000, 2000);
-			//´ò¿ª×Ô¶¯´ò¹Ö
+			//æ‰“å¼€è‡ªåŠ¨æ‰“æ€ª
 			AutoFightStrange(TRUE);
 			m_an.Delays(1000, 2000);
 			AutoFightStrange(FALSE);
 			CTimeEx t1 = CTimeEx::GetCurrentTime();
 			bool bFind = true;
-			//µÈ´ıÕÒµ½Ä¿±ê
-			while (m_dm.FindStr(5, 327, 296, 415, _T("¹¥»÷Ä¿±ê"), _T("00ff00-101010")) < 0)
+			//ç­‰å¾…æ‰¾åˆ°ç›®æ ‡
+			while (m_dm.FindStr(5, 327, 296, 415, _T("æ”»å‡»ç›®æ ‡"), _T("00ff00-101010")) < 0)
 			{
 				m_an.Delays(100, 200);
 				CAnTimeSpan total = CTimeEx::GetCurrentTime() - t1;
 				if (total.GetTotalMinutes() > 1)
 				{
-					TracePrint(_T("Ã»ÓĞÕÒµ½¹ÖÎï"));
+					LOG_INFO << _T("æ²¡æœ‰æ‰¾åˆ°æ€ªç‰©");
 					bFind = false;
 					break;
 				}
@@ -201,42 +201,42 @@ void CWooolAssistX::FightStranges3()
 				m_dm.KeyPressChar(_T("F3"));
 				m_an.Delays(100, 200);
 			}
-			//µÈ´ı´ò¹ÖÍê³É
-			while (m_dm.FindStr(5, 327, 296, 415, _T("¹¥»÷Ä¿±ê"), _T("00ff00-101010")) >= 0)
+			//ç­‰å¾…æ‰“æ€ªå®Œæˆ
+			while (m_dm.FindStr(5, 327, 296, 415, _T("æ”»å‡»ç›®æ ‡"), _T("00ff00-101010")) >= 0)
 			{
 				m_an.Delays(100, 200);
 			}
 			m_an.Delays(5000, 8000);
-			//Ò»¼ü»ØÊÕ
+			//ä¸€é”®å›æ”¶
 			OneButtonRecycling();
 		}
 		m_an.Delays(1000, 2000);
 	}
 }
 
-// Ìá½»ÔÂ¹â±¦ºĞ
+// æäº¤æœˆå…‰å®ç›’
 bool CWooolAssistX::SubMitMoonbeamsBox()
 {
 	bool bret = false;
 	while (true)
 	{
-		if (m_dm.FindImg(_T("ºìĞä*.bmp")) > -1)
+		if (m_dm.FindImg(_T("çº¢è¢–*.bmp")) > -1)
 		{
 			m_dm.LClick(m_dm.GetImgX() + 20, m_dm.GetImgY() + 50);
 			m_dm.Delays(100, 200);
 		}
 
-		if (m_dm.ClickStr(_T("ÔÂ¹â±¦ºĞ"), _T("ffff00-101010")) > -1)
+		if (m_dm.ClickStr(_T("æœˆå…‰å®ç›’"), _T("ffff00-101010")) > -1)
 		{
 
-			if (m_dm.WaitClickStr(_T("Ãâ·ÑÊÍ·Å"), _T("ffff00-101010"), 1) > -1)
+			if (m_dm.WaitClickStr(_T("å…è´¹é‡Šæ”¾"), _T("ffff00-101010"), 1) > -1)
 			{
 				m_dm.LClick(m_dm.GetStrX(), m_dm.GetStrY());
 				m_an.Delays(100, 200);
-				//·ÅÈëÔÂ¹â±¦ºĞ
+				//æ”¾å…¥æœˆå…‰å®ç›’
 				bret = PutMoonbeamsBox();
-				//¹ºÂòÔÂ¹â±¦ºĞ
-				if (m_dm.FindStr(_T("Ôª±¦¹ºÂò"), _T("ffff00-101010")) > -1)
+				//è´­ä¹°æœˆå…‰å®ç›’
+				if (m_dm.FindStr(_T("å…ƒå®è´­ä¹°"), _T("ffff00-101010")) > -1)
 				{
 					m_dm.LClick(m_dm.GetStrX() + 5, m_dm.GetStrY() + 3);
 					m_an.Delays(100, 200);
@@ -255,26 +255,26 @@ bool CWooolAssistX::SubMitMoonbeamsBox()
 	return bret;
 }
 
-//·ÅÈëÔÂ¹â±¦ºĞ
+//æ”¾å…¥æœˆå…‰å®ç›’
 bool CWooolAssistX::PutMoonbeamsBox()
 {
 	bool bret = false;
-	//´ò¿ª°ü¹ü
+	//æ‰“å¼€åŒ…è£¹
 	if (OpenPackage())
 	{
-		TracePrint(_T("´ò¿ª°ü¹ü³É¹¦"));
+		LOG_INFO << _T("æ‰“å¼€åŒ…è£¹æˆåŠŸ");
 		long intentX = -1, intentY = -1;
 		bret = true;
-		while (m_dm.FindStr(_T("·ÅÈëÔÂ¹â"), _T("ffffff-101010")) < 0)
+		while (m_dm.FindStr(_T("æ”¾å…¥æœˆå…‰"), _T("ffffff-101010")) < 0)
 		{
-			m_dm.ClickStr(_T("Ãâ·ÑÊÍ·Å"), _T("ffff00-101010"));
+			m_dm.ClickStr(_T("å…è´¹é‡Šæ”¾"), _T("ffff00-101010"));
 			m_an.Delays(100, 200);
 		}
 		
 		intentX = m_dm.GetStrX();
 		intentY = m_dm.GetStrY();
 		
-		generic_string retstr = m_dm.FindImgEx(m_bgx1, m_bgy1, m_bgx2, m_bgy2, _T("ÔÂ¹â±¦ºĞ*.bmp"));
+		generic_string retstr = m_dm.FindImgEx(m_bgx1, m_bgy1, m_bgx2, m_bgy2, _T("æœˆå…‰å®ç›’*.bmp"));
 		if (retstr.empty() || (intentX < 0 && intentY < 0))
 		{
 			return bret;
@@ -289,7 +289,7 @@ bool CWooolAssistX::PutMoonbeamsBox()
 			_stscanf_s(it->c_str(), _T("%d,%d,%d"), &id, &x, &y);
 			m_dm.MoveToEx(x, y, 5, 5);
 			m_an.Delays(100, 200);
-			if (m_dm.FindStr(_T("¾­ÑéÎª"), _T("ffff00-101010")) > -1)
+			if (m_dm.FindStr(_T("ç»éªŒä¸º"), _T("ffff00-101010")) > -1)
 			{
 				long x1, y1, x2, y2;
 				long experienceX = 0, experienceY = 0;
@@ -298,7 +298,7 @@ bool CWooolAssistX::PutMoonbeamsBox()
 				x2 = x1 + 150;
 				y2 = y1 + 15;
 				retstr = m_dm.Ocr(x1, y1, x2, y2, _T("ffff00-101010"));
-				TracePrint(_T("Ê¶±ğµÄ½á¹û:%s"), retstr.c_str());
+				LOG_INFO << _T("è¯†åˆ«çš„ç»“æœ:") << retstr.c_str();
 				_stscanf_s(retstr.c_str(), _T("%d/%d"), &experienceX, &experienceY);
 				if (experienceX > 0 && experienceY > 0 && experienceX == experienceY)
 				{
@@ -307,7 +307,7 @@ bool CWooolAssistX::PutMoonbeamsBox()
 					m_dm.Delays(100, 200);
 					m_dm.LClick(intentX + 80, intentY + 60);
 					m_dm.Delays(100, 200);
-					m_dm.ClickStr(_T("È·ÈÏ"), _T("cc9944-101010"));
+					m_dm.ClickStr(_T("ç¡®è®¤"), _T("cc9944-101010"));
 				}
 			}
 			m_dm.Delays(100, 200);
@@ -317,11 +317,11 @@ bool CWooolAssistX::PutMoonbeamsBox()
 	return bret;
 }
 
-//×Ô¶¯´ò¹Ö
+//è‡ªåŠ¨æ‰“æ€ª
 bool CWooolAssistX::AutoFightStrange(BOOL bAuto)
 {
 	bool bret = false;
-	generic_string strMode = bAuto ? _T("Ïû´ò") : _T("¶¯´ò");
+	generic_string strMode = bAuto ? _T("æ¶ˆæ‰“") : _T("åŠ¨æ‰“");
 	for (size_t i = 0; i < 10; i++)
 	{
 		if (m_dm.FindStr(strMode.c_str(), _T("ddbb99-101010|cc9944-101010")) > -1)
@@ -332,15 +332,15 @@ bool CWooolAssistX::AutoFightStrange(BOOL bAuto)
 		}
 		else
 		{
-			long dm_ret = m_dm.FindStr(_T("¶¯´ò|Ïû´ò"), _T("ddbb99-101010|cc9944-101010"));
+			long dm_ret = m_dm.FindStr(_T("åŠ¨æ‰“|æ¶ˆæ‰“"), _T("ddbb99-101010|cc9944-101010"));
 			if (0 == dm_ret)
 			{
-				TracePrint(_T("¿ªÆô×Ô¶¯´ò¹Ö³É¹¦"));
+				LOG_INFO << _T("å¼€å¯è‡ªåŠ¨æ‰“æ€ªæˆåŠŸ");
 				break;
 			}
 			else if (1 == dm_ret)
 			{
-				TracePrint(_T("È¡Ïû×Ô¶¯´ò¹Ö³É¹¦"));
+				LOG_INFO << _T("å–æ¶ˆè‡ªåŠ¨æ‰“æ€ªæˆåŠŸ");
 				break;
 			}
 		}
@@ -349,7 +349,7 @@ bool CWooolAssistX::AutoFightStrange(BOOL bAuto)
 	return bret;
 }
 
-//´ò¿ª°ü¹ü
+//æ‰“å¼€åŒ…è£¹
 bool CWooolAssistX::OpenPackage()
 {
 	bool db = false;
@@ -360,11 +360,11 @@ bool CWooolAssistX::OpenPackage()
 	CAnTimeSpan total;
 	do
 	{
-		m_dm.ClickStr(_T("°ü¹ü"), _T("da8a4d-140f08"));
+		m_dm.ClickStr(_T("åŒ…è£¹"), _T("da8a4d-140f08"));
 		m_an.Delays(100, 200);
-		if (m_dm.FindStr(_T("ÉÌ³Ç"), _T("ee9955-101010")) > -1)
+		if (m_dm.FindStr(_T("å•†åŸ"), _T("ee9955-101010")) > -1)
 		{
-			TracePrint(_T("´ò¿ª°ü¹ü³É¹¦"));
+			LOG_INFO << _T("æ‰“å¼€åŒ…è£¹æˆåŠŸ");
 			m_bgx1 = m_dm.GetStrX() + 78;
 			m_bgy1 = m_dm.GetStrY() + 25;
 			m_bgx2 = m_dm.GetStrX() + 437;
@@ -378,15 +378,15 @@ bool CWooolAssistX::OpenPackage()
 		}
 		else
 		{
-			if (m_dm.FindStr(_T("³äÇ®"), _T("ee9955-101010")) > -1)
+			if (m_dm.FindStr(_T("å……é’±"), _T("ee9955-101010")) > -1)
 			{
-				TracePrint(_T("°ü¹üÒÆµ½ÆÁÄ»ÍâÈ¥ÁË"));
+				LOG_INFO << _T("åŒ…è£¹ç§»åˆ°å±å¹•å¤–å»äº†");
 
 			}
 			else
 			{
 				if (db)
-					TracePrint(_T("°ü¹ü´ò¿ªÊ§°Ü,ÖØÊÔÖĞ..."));
+					LOG_INFO << _T("åŒ…è£¹æ‰“å¼€å¤±è´¥,é‡è¯•ä¸­...");
 				db = true;
 				generic_string gTime;
 				long nDict = m_dm.GetNowDict();
@@ -399,15 +399,15 @@ bool CWooolAssistX::OpenPackage()
 					total = CTimeEx::GetCurrentTime() - t1;
 					if (total.GetTotalSeconds() > 60)
 					{
-						TracePrint(_T("<´ò¿ª°ü¹ü>ÓÎÏ·²»Ë¢ĞÂ"));
+						LOG_INFO << _T("<æ‰“å¼€åŒ…è£¹>æ¸¸æˆä¸åˆ·æ–°");
 					}
 					else
 					{
-						TracePrint(_T("<´ò¿ª°ü¹ü>ÓÎÏ·Õı³£"));
+						LOG_INFO << _T("<æ‰“å¼€åŒ…è£¹>æ¸¸æˆæ­£å¸¸");
 					}
 				}
 				else {
-					TracePrint(_T("<´ò¿ª°ü¹ü>Ê±¼äÊ¶±ğ´íÎó:%s"), gTime.c_str());
+					LOG_INFO << "<æ‰“å¼€åŒ…è£¹>æ—¶é—´è¯†åˆ«é”™è¯¯:" << gTime.c_str();
 				}
 				total = CTimeEx::GetCurrentTime() - m1;
 				if (total.GetTotalSeconds() > 3)
@@ -415,7 +415,7 @@ bool CWooolAssistX::OpenPackage()
 					m_an.SetWindowState(m_hWnd, 12);
 					m_an.Delays(100, 200);
 					m1 = CTimeEx::GetCurrentTime();
-					m_dm.WaitClickImg(Ux1 + 500, Uy1, Ux2, Uy2, L"°ü¹ü.bmp", 0.1f);
+					m_dm.WaitClickImg(Ux1 + 500, Uy1, Ux2, Uy2, L"åŒ…è£¹.bmp", 0.1f);
 				}
 				else
 				{
@@ -428,18 +428,18 @@ bool CWooolAssistX::OpenPackage()
 	} while (total.GetTotalSeconds() < 30);
 	return bret;
 }
-//¹Ø±Õ¶Ô»°¿ò
+//å…³é—­å¯¹è¯æ¡†
 void CWooolAssistX::CloseDialog(int n)
 {
 	int cs = 1;
 	while (cs < n)
 	{
-		int nImgID = m_dm.WaitImg(_T("Àë.bmp|¿ª.bmp|¹Ø±Õ*.bmp"), 0.3);
+		int nImgID = m_dm.WaitImg(_T("ç¦».bmp|å¼€.bmp|å…³é—­*.bmp"), 0.3);
 		switch (nImgID)
 		{
 		case 0:
 		case 1:
-			TracePrint(_T("²»ĞèÒª¹Ø±Õ"));
+			LOG_INFO << _T("ä¸éœ€è¦å…³é—­");
 			return;
 		case PLUG_FAILED:
 			return;
@@ -452,7 +452,7 @@ void CWooolAssistX::CloseDialog(int n)
 		m_an.Delays(30, 50);
 	}
 }
-//Ê¹ÓÃµÀ¾ß
+//ä½¿ç”¨é“å…·
 void CWooolAssistX::UsedProperty(LPCTSTR pszName)
 {
 	generic_string retstr = m_dm.WaitImgEx(pszName, 1.0);

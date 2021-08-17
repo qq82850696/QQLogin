@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "QQManager.h"
 
 
@@ -98,13 +98,13 @@ bool CQQManager::CheckQQInterface()
 	return bret;
 }
 
-//×îĞ¡»¯ËùÓĞQQ´°¿Ú
+//æœ€å°åŒ–æ‰€æœ‰QQçª—å£
 BOOL CQQManager::MinimizeQQHwnd()
 {
 	return EnumWindows(EnumQQWindowsProc, reinterpret_cast<LPARAM>(this));
 }
 
-//Æô¶¯QQ
+//å¯åŠ¨QQ
 bool CQQManager::RunQQApp(LPCTSTR pszQQPath, LPCTSTR pszHistoryPath, LPCTSTR pszDocPath, LONG nDelay /*= 30*/)
 {
 	CAnDataLocker locker(m_cs);
@@ -119,7 +119,7 @@ bool CQQManager::RunQQApp(LPCTSTR pszQQPath, LPCTSTR pszHistoryPath, LPCTSTR psz
 	m_an.RunApp(pszQQPath, 0);
 	m_an.DelayEx(nDelay, 2);
 
-	//ÅĞ¶ÏQQÊÇ·ñÆô¶¯³É¹¦
+	//åˆ¤æ–­QQæ˜¯å¦å¯åŠ¨æˆåŠŸ
 	bret = QQIsRunning(pszDocPath, strItem);
 	if (false == bret)
 	{
@@ -130,7 +130,7 @@ bool CQQManager::RunQQApp(LPCTSTR pszQQPath, LPCTSTR pszHistoryPath, LPCTSTR psz
 
 }
 
-//¹Ø±ÕQQÆô¶¯´°¿Ú https://qq82850696:ily904302@github.com/qq82850696/QQLogin.git
+//å…³é—­QQå¯åŠ¨çª—å£ https://qq82850696:ily904302@github.com/qq82850696/QQLogin.git
 bool CQQManager::CloseQQStartWnd()
 {
 	bool bret = false;
@@ -156,7 +156,7 @@ bool CQQManager::CloseQQStartWnd()
 	return bret;
 }
 
-//ÅĞ¶ÏQQÊÇ·ñÒÑ¾­Æô¶¯
+//åˆ¤æ–­QQæ˜¯å¦å·²ç»å¯åŠ¨
 bool CQQManager::QQIsRunning(LPCTSTR pszQQDocPath, LPCTSTR pszQQ)
 {
 	char drive[_MAX_DRIVE];
@@ -179,7 +179,7 @@ bool CQQManager::QQIsRunning(LPCTSTR pszQQDocPath, LPCTSTR pszQQ)
 	}
 
 	strQQMsg.Format(_T("%s%s%s\\Msg3.0index.db"), CA2T(drive), strPath.GetBuffer(), pszQQ);
-	//ÅĞ¶ÏÎÄ¼şÊÇ·ñ´æÔÚ,Èç¹û´æÔÚÅĞ¶Ï×îºóĞŞ¸ÄÊ±¼ä,²»´æÔÚËµÃ÷Ã»ÓĞµÇÂ¼¹ı
+	//åˆ¤æ–­æ–‡ä»¶æ˜¯å¦å­˜åœ¨,å¦‚æœå­˜åœ¨åˆ¤æ–­æœ€åä¿®æ”¹æ—¶é—´,ä¸å­˜åœ¨è¯´æ˜æ²¡æœ‰ç™»å½•è¿‡
 	if (m_an.IsFileExist(strQQMsg))
 	{
 		
@@ -197,30 +197,30 @@ bool CQQManager::QQIsRunning(LPCTSTR pszQQDocPath, LPCTSTR pszQQ)
 
 bool CQQManager::OnEventThreadStrat()
 {
-	// ³õÊ¼»¯COMÄ£ĞÍÎªmta
+	// åˆå§‹åŒ–COMæ¨¡å‹ä¸ºmta
 	SetThreadName("window Thread");
 	CoInitialize(NULL);
 	m_ansoft.CreateObjectEx();
-	TracePrint(_T("OnEventThreadStrat"));
+	LOG_INFO << _T("OnEventThreadStrat");
 	ANPLUG_ASSERT(m_ansoft.IsValid(), "m_ansoft will be NULL");
 	InitAdvertisement();
-	TracePrint(_T("Æô¶¯Ïß³ÌÍê³É"));
+	LOG_INFO << _T("å¯åŠ¨çº¿ç¨‹å®Œæˆ");
 	return m_ansoft.IsValid();
 }
 
 bool CQQManager::OnEventThreadConclude()
 {
-	TracePrint(_T("OnEventThreadConclude"));
+	LOG_INFO << _T("OnEventThreadConclude");
 	m_ansoft.Release();
 	::CoUninitialize();
-	TracePrint(_T("Ïß³Ì½áÊø"));
+	LOG_INFO << _T("çº¿ç¨‹ç»“æŸ");
 	return true;
 }
 
-//Ïß³ÌÔËĞĞÊÂ¼ş (ÓÃÓÚ¹Ø±Õ¹ã¸æ)
+//çº¿ç¨‹è¿è¡Œäº‹ä»¶ (ç”¨äºå…³é—­å¹¿å‘Š)
 bool CQQManager::OnEventThreadRun()
 {
-	//µÈ´ı60ÃëÔÙ²éÕÒ¹ã¸æ
+	//ç­‰å¾…60ç§’å†æŸ¥æ‰¾å¹¿å‘Š
 	//if (Delay(60, 2)) return false;
 	static size_t nCloseCount = 0;
 
@@ -242,7 +242,7 @@ bool CQQManager::OnEventThreadRun()
 bool CQQManager::InitAdvertisement()
 {
 	bool bret = false;
-	TracePrint(_T("InitAdvertisement"));
+	LOG_INFO << _T("InitAdvertisement");
 	try
 	{
 		CXmlHelper xml;
@@ -296,7 +296,7 @@ bool CQQManager::InitAdvertisement()
 		}
 		else
 		{
-			TracePrint(_T("Load advertisement.xml Faild"));
+			LOG_INFO << _T("Load advertisement.xml Faild");
 		}
 
 
@@ -323,18 +323,20 @@ bool CQQManager::InitAdvertisement()
 	{
 		TCHAR szErr[MAX_PATH] = { 0 };
 		e->GetErrorMessage(szErr, MAX_PATH);
-		TracePrint(szErr);
+		LOG_INFO << szErr;
 		AfxMessageBox(szErr);
 	}
 	return bret;
 }
-//¹Ø±Õ´°¿Ú
+//å…³é—­çª—å£
 bool CQQManager::CloseWindow(LPCWSTR lpClassName, LPCWSTR lpWindowName)
 {
 	long hWnd;
 	bool bret = false;
 	hWnd = m_ansoft.FindWindow(lpClassName, lpWindowName);
-	TracePrint(_T("hWnd:%d,Class:%s,Name:%s"), hWnd, lpClassName, lpWindowName);
+	CString tempstr;
+	tempstr.Format(_T("hWnd:%d,Class:%s,Name:%s"), hWnd, lpClassName, lpWindowName);
+	LOG_INFO << tempstr;
 	if (hWnd > 0)
 	{
 		m_ansoft.SetWindowState(hWnd, 0);
@@ -350,7 +352,8 @@ bool CQQManager::CloseWindow(LPCWSTR lpClassName, LPCWSTR lpWindowName)
 		{
 			if (FALSE == IsWindow((HWND)hWnd))
 				break;
-			TracePrint(_T("hWnd=%d; x:%d,y:%d"), hWnd, winRc.left + winRc.Width() - 20, i);
+			tempstr.Format(_T("hWnd=%d; x:%d,y:%d"), hWnd, winRc.left + winRc.Width() - 20, i);
+			LOG_INFO << tempstr;
 			m_ansoft.MoveClick(1, winRc.left + winRc.Width() - 20, i, hWnd);
 			m_ansoft.Delays(100, 200);
 			m_ansoft.MoveClick(1, winRc.left + winRc.Width() - 20, i);
@@ -364,7 +367,7 @@ bool CQQManager::CloseWindow(LPCWSTR lpClassName, LPCWSTR lpWindowName)
 	return bret;
 }
 
-//¹Ø±Õ´°¿Ú
+//å…³é—­çª—å£
 bool CQQManager::CloseWindow(Advertisement info)
 {
 
@@ -375,7 +378,9 @@ bool CQQManager::CloseWindow(Advertisement info)
 		hWnd = m_ansoft.FindWindow(info.strClass, info.strTitle);
 		if (hWnd > 0)
 		{
-			TracePrint(_T("hWnd:%d,Class:%s,Name:%s"), hWnd, info.strClass.GetBuffer(), info.strTitle.GetBuffer());
+			CString tempstr;
+			tempstr.Format(_T("hWnd:%d,Class:%s,Name:%s"), hWnd, info.strClass.GetBuffer(), info.strTitle.GetBuffer());
+			LOG_INFO << tempstr;
 			SIZE size = info.closePos;
 			CTimeEx beginTime = CTimeEx::GetCurrentTime();
 			CAnTimeSpan total;
