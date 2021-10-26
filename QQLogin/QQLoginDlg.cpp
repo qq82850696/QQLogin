@@ -9,10 +9,12 @@
 #include <atlsafe.h>
 #include "AnGdiplus.h"
 #include "httpgetpost.h"
+#include <全局定义/Com组件/CTLH2IDL.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
+
 
 
 #define QQ_RUN    _T("已启动")
@@ -68,7 +70,7 @@ END_MESSAGE_MAP()
 
 //CAnGdiplus anGDI;
 
-
+#import "F:\\QQLogin\\Aniu.dll" 
 
 CQQLoginDlg::CQQLoginDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_QQLOGIN_DIALOG, pParent)
@@ -79,6 +81,13 @@ CQQLoginDlg::CQQLoginDlg(CWnd* pParent /*=nullptr*/)
 	m_nTimeID = 0;
 	m_hIcon = AfxGetApp()->LoadIcon(IDI_QQ2012);
 	//InitAdvertisement();
+	CTLH2IDL idl(_T("M:\\AniuSource\\Visual Studio 2013\\QQLogin\\Debug\\QQLogin\\aniu.tlh"));
+
+	idl.setSavePath(_T("M:\\AniuSource\\Visual Studio 2013\\QQLogin\\"));
+	idl.setClassName(_T("CAnPlugInterFace"));
+
+	idl.getFuncDescription(_T("M:\\AniuSource\\Visual Studio 2013\\QQLogin\\Description.txt"));
+	idl.RegMatchBatch();
 }
 
 CQQLoginDlg::~CQQLoginDlg()

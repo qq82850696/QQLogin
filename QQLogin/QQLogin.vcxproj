@@ -105,6 +105,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -202,7 +203,9 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\AnPlug\全局定义\Com组件\CTLH2IDL.h" />
     <ClInclude Include="AppParameters.h" />
+    <ClInclude Include="CHNsoft.h" />
     <ClInclude Include="GGetWndProc.h" />
     <ClInclude Include="Integer.h" />
     <ClInclude Include="INumeric.h" />
@@ -218,6 +221,7 @@
     <ClInclude Include="WooolAssistX.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\AnPlug\全局定义\Com组件\CTLH2IDL.cpp" />
     <ClCompile Include="AppParameters.cpp" />
     <ClCompile Include="GGetWndProc.cpp" />
     <ClCompile Include="Integer.cpp" />
@@ -249,6 +253,9 @@
     <Image Include="res\腾讯QQ2011Beta2 木头版.lnk.ico" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\AnPlug\AniuLibStatic\AniuLibStatic.vcxproj">
+      <Project>{e5ccf63b-28e5-4fc2-871a-6de4df6fff13}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\AnPlug\AnPlug\AnPlug.vcxproj">
       <Project>{c912486b-92c4-4651-982e-2ab9e1c748b1}</Project>
     </ProjectReference>

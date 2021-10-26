@@ -57,6 +57,12 @@
     <ClInclude Include="MyIAccessible.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="CHNsoft.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\AnPlug\全局定义\Com组件\CTLH2IDL.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="QQLogin.cpp">
@@ -87,6 +93,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="MyIAccessible.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\AnPlug\全局定义\Com组件\CTLH2IDL.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

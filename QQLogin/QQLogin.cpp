@@ -45,13 +45,13 @@ CQQLoginApp::CQQLoginApp() :m_SingleApp(_T("Global\\QQLoginApp"))
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);//_CrtDumpMemoryLeaks();
 	_CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_DEBUG);
 
-	//_CrtSetBreakAlloc(3567);
-	/*_CrtSetBreakAlloc(4081);
-	_CrtSetBreakAlloc(4084);*/
-	/*for (size_t i = 6709; i < 6712; i++)
-	{
-		_CrtSetBreakAlloc(i);
-	}*/
+	//_CrtSetBreakAlloc(3803);
+	//_CrtSetBreakAlloc(4081);
+	//_CrtSetBreakAlloc(4084);
+	//for (size_t i = 6709; i < 6712; i++)
+	//{
+	//	_CrtSetBreakAlloc(i);
+	//}
 
 
 }
