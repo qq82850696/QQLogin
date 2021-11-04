@@ -253,6 +253,9 @@
     <Image Include="res\腾讯QQ2011Beta2 木头版.lnk.ico" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\AnPlug\AnComHelper\AnComHelper.vcxproj">
+      <Project>{8fbc88bf-2241-420a-b8b2-b5cec9651448}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\AnPlug\AniuLibStatic\AniuLibStatic.vcxproj">
       <Project>{e5ccf63b-28e5-4fc2-871a-6de4df6fff13}</Project>
     </ProjectReference>

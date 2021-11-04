@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 
 
@@ -42,33 +42,33 @@ public:
 	virtual ~CQQManager();
 public:
 	virtual void Release();
-    virtual void SetPlug(AnCom::CAnSoft&  an);
+    virtual void SetPlug(const AnCom::CAnSoft&  an);
 
-	//²Ù×÷
+	//æ“ä½œ
 public:
-	//¼ì²éQQµÇÂ¼½çÃæ
+	//æ£€æŸ¥QQç™»å½•ç•Œé¢
 	virtual bool CheckQQInterface();
-	//×îĞ¡»¯ËùÓĞQQ´°¿Ú
+	//æœ€å°åŒ–æ‰€æœ‰QQçª—å£
 	virtual BOOL MinimizeQQHwnd();
-	//Æô¶¯QQ
+	//å¯åŠ¨QQ
 	virtual bool RunQQApp(LPCTSTR pszQQPath, LPCTSTR pszHistoryPath, LPCTSTR pszDocPath, LONG nDelay = 30);
-	//¹Ø±ÕQQÆô¶¯´°¿Ú
+	//å…³é—­QQå¯åŠ¨çª—å£
 	virtual bool CloseQQStartWnd();
-	//ÅĞ¶ÏQQÊÇ·ñÒÑ¾­Æô¶¯
+	//åˆ¤æ–­QQæ˜¯å¦å·²ç»å¯åŠ¨
 	virtual bool QQIsRunning(LPCTSTR pszQQDocPath,LPCTSTR pszQQ);
-	//¿ªÊ¼ÊÂ¼ş
+	//å¼€å§‹äº‹ä»¶
 	virtual bool OnEventThreadStrat();
-	//ÖÕÖ¹ÊÂ¼ş
+	//ç»ˆæ­¢äº‹ä»¶
 	virtual bool OnEventThreadConclude();
-	//ÔËĞĞÊÂ¼ş
+	//è¿è¡Œäº‹ä»¶
 	virtual bool OnEventThreadRun();
-    //³õÊ¼»¯¹ã¸æ´°¿ÚĞÅÏ¢
+    //åˆå§‹åŒ–å¹¿å‘Šçª—å£ä¿¡æ¯
     virtual bool InitAdvertisement();
-    //¹Ø±Õ´°¿Ú
+    //å…³é—­çª—å£
     virtual bool CloseWindow(LPCWSTR lpClassName, LPCWSTR lpWindowName);
-	//¹Ø±Õ´°¿Ú
+	//å…³é—­çª—å£
 	virtual bool CloseWindow(Advertisement info);
-    //ÉèÖÃQQ´°¿Ú×´Ì¬
+    //è®¾ç½®QQçª—å£çŠ¶æ€
     bool          SetQQWndState(long nState);
 };
 

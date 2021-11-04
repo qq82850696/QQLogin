@@ -70,7 +70,7 @@ END_MESSAGE_MAP()
 
 //CAnGdiplus anGDI;
 
-#import "F:\\QQLogin\\Aniu.dll" 
+//#import "F:\\QQLogin\\Aniu.dll" 
 
 CQQLoginDlg::CQQLoginDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_QQLOGIN_DIALOG, pParent)
@@ -81,13 +81,21 @@ CQQLoginDlg::CQQLoginDlg(CWnd* pParent /*=nullptr*/)
 	m_nTimeID = 0;
 	m_hIcon = AfxGetApp()->LoadIcon(IDI_QQ2012);
 	//InitAdvertisement();
-	CTLH2IDL idl(_T("M:\\AniuSource\\Visual Studio 2013\\QQLogin\\Debug\\QQLogin\\aniu.tlh"));
+	/*CTLH2IDL idl(_T("M:\\AniuSource\\Visual Studio 2013\\QQLogin\\Debug\\QQLogin\\aniu.tlh"));
 
 	idl.setSavePath(_T("M:\\AniuSource\\Visual Studio 2013\\QQLogin\\"));
 	idl.setClassName(_T("CAnPlugInterFace"));
 
 	idl.getFuncDescription(_T("M:\\AniuSource\\Visual Studio 2013\\QQLogin\\Description.txt"));
-	idl.RegMatchBatch();
+	idl.RegMatchBatch();*/
+	/*CAnRegKey key;
+	string_Map valueMap;
+	key.EnumValues(HKEY_CLASSES_ROOT, _T("*\\shell\\UpdateEncryptionSettingsWork"), valueMap, -1);
+	for (auto it = valueMap.begin(); it != valueMap.end(); ++it)
+	{
+
+	}*/
+
 }
 
 CQQLoginDlg::~CQQLoginDlg()
@@ -325,6 +333,27 @@ BOOL CQQLoginDlg::OnInitDialog()
 		strAppPath.Append(_T(" hide"));
 		m_an.AutoPowerOn(strAppPath);
 		LoadShe();
+
+		tstring tmpPath = strAppPath.GetBuffer();
+		CAnPath::pathRemoveFileSpec(tmpPath);
+		tstring res = CAnPath::Combine(tmpPath.c_str(), _T("res"));
+		m_an.SetPath(res.c_str());
+
+		m_dm = m_an.GetBankObject();
+		
+		if (m_dm.Ver().empty())
+		{
+			m_dm.SetBasePath(res.c_str());
+			m_dm.SetDictFiles(_T("qqDict.txt"));
+			m_dm.RegPlugin();
+		}
+		else
+		{
+			m_dm.SetPath(res.c_str());
+			m_dm.SetDict(0, _T("qqDict.txt"));
+		}
+		
+
 		generic_string strVer = m_an.Ver();
 		//设置标题
 		CString strTitle;
@@ -351,7 +380,7 @@ BOOL CQQLoginDlg::OnInitDialog()
 		GetLoginQQ();
 		//填充列表框
 		FillListControl();
-		
+
 		if (theApp.m_bRunQQ)
 		{
 			//m_qqMgr.StartThread();
@@ -561,7 +590,7 @@ void CQQLoginDlg::BatchStartQQ()
 	m_listQQ.SetItemText(0, 2, L"开始挂机");
 	LOG_INFO << _T("开始挂机");
 	m_qqMgr.CloseQQStartWnd();
-	while (nCount > nStartCount)
+	while (nCount > nStartCount && !m_bExit)
 	{
 		if (i >= nCount)
 			i = 0;
@@ -573,7 +602,7 @@ void CQQLoginDlg::BatchStartQQ()
 		strItem = m_listQQ.GetItemText(i, 1);
 		tempstr.Format(_T("共%d个QQ号,正在启动第%d个:%s"), nCount, nStartCount, strItem.GetBuffer());
 		LOG_INFO << tempstr;
-		qqInfo info = m_qqStatusMap[strItem.GetBuffer()];
+		qqInfo& info = m_qqStatusMap[strItem.GetBuffer()];
 
 		if (info.bLogin)
 		{
@@ -595,6 +624,10 @@ void CQQLoginDlg::BatchStartQQ()
 
 		for (int j = 0; j < m_cbDocPath.GetCount(); j++)
 		{
+			if (m_bExit)
+			{
+				return;
+			}
 			m_cbDocPath.GetLBText(j, strLBText);
 			//m_an.FileOperation(strLBText.GetBuffer(), nullptr, 3);
 			//m_an.FileOperation(strHistory.GetBuffer(), strLBText.GetBuffer(), 1);
@@ -611,18 +644,82 @@ void CQQLoginDlg::BatchStartQQ()
 		_stscanf_s(m_strInterval.GetBuffer(), _T("%d"), &dt);
 		m_qqMgr.Delay(dt, 2);
 		LOG_INFO << _T("检查QQ是否启动完成");
+		if (m_bExit)
+		{
+			return;
+		}
+		long qqHwnd = m_an.FindWindow(_T("TXGuiFoundation"), _T("QQ"));
+		if (qqHwnd > 0)
+		{
+			long x1, x2, y1, y2;
+			m_an.GetClientRect(qqHwnd, &x1, &x2, &y1, &y2);
+			if (x2 > 0 && y2 > 0)
+			{
+				m_dm.SetFindX(x2);
+				m_dm.SetFindY(y2);
+				long nImgId = m_dm.FindImg(_T("提示.bmp|登.bmp|取.bmp"));
+				switch (nImgId)
+				{
+				case 0:  //已经登录成功
+				{
+					info.bLogin = true;
+					break;
+				}
+				case 1:  //还在登录界面
+				{
+					info.bLogin = (m_dm.FindStrAn(_T("重复"), _T("b@f9f3d3-101010")) > -1);
+					break;
+				}
+				case 2:   //等待登录
+				{
+					bool bSuccess = true;
+					COleDateTime t = COleDateTime::GetCurrentTime();
+					//等待登录成功
+					while (IsWindow((HWND)qqHwnd) && m_bExit)
+					{
+						m_an.Delays(100, 500);
+						COleDateTimeSpan sp = COleDateTime::GetCurrentTime() - t;
+						if (sp.GetMinutes() > 5) //超时退出
+						{
+							bSuccess = false;
+							break;
+						}
+						m_an.Delays(100, 500);
+					}
+					info.bLogin = bSuccess;
+					break;
+				}
+
+				default:
+					break;
+				}
+
+				if (info.bLogin)
+				{
+					GetLoginQQ();
+					m_listQQ.SetItemText(i, 2, lret != 0 ? L"成功" : L"失败");
+					i++;
+					continue;
+				}
+			}
+		}
+
 		//判断QQ是否启动成功
 		if (m_qqMgr.CheckQQInterface() || false == m_qqMgr.IsQQRunning(strItem) || m_qqMgr.GetQQProcessNum() > nStartCount)
 		{
 			m_qqMgr.CloseQQStartWnd();
 		}
-		long qqHwnd = m_an.FindWindow(_T("TXGuiFoundation"), _T("QQ"));
 		if (qqHwnd > 0)
 		{
 			m_an.SetWindowState(qqHwnd, 3);
 			info.hWnd = (HWND)qqHwnd;
 			m_an.MoveWindow(qqHwnd, info.pt.x, info.pt.y);
 			Delays(100, 200);
+		}
+
+		if (m_bExit)
+		{
+			return;
 		}
 		GetLoginQQ();
 
@@ -1049,6 +1146,7 @@ void CQQLoginDlg::OnClose()
 		this->KillTimer(m_nTimeID);
 	}
 	ShowWindow(SW_MINIMIZE);
+	m_bExit = true;
 	LOG_INFO << _T("OnClose");
 	m_TrayIcon.HideTrayIcon();
 	m_qqMgr.Release();

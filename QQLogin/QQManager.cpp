@@ -66,7 +66,7 @@ void CQQManager::Release()
 }
 
 
-void CQQManager::SetPlug(CAnSoft& an)
+void CQQManager::SetPlug(const CAnSoft& an)
 {
 	UNREFERENCED_PARAMETER(an);
 	m_an = an;
