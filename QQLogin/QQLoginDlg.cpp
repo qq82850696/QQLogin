@@ -176,10 +176,11 @@ void PrintValue(Json::Value& result)
 			Json::CharReaderBuilder b;
 			Json::CharReader* JsonReader(b.newCharReader());
 			Json::Value JsonRoot, ObjectTmp;
-			JSONCPP_STRING errs;
+			anstringA errs;
 			strVal.insert(0, strKey + ":\n\t");
 			const char* pstr = strVal.c_str();
 			JsonReader->parse(pstr, pstr + strlen(pstr), &JsonRoot, &errs);
+			SafeDelete(JsonReader);
 			PrintValue(JsonRoot);
 			//TraceDebugStringA("%s:%s", strKey.c_str(), CCodeConvert::USCToAnsi(strVal).c_str());
 		}
@@ -194,6 +195,150 @@ wstring GetAppPathW()
 	memset(pstr + 1, 0, 2);
 	wstring strAppPath(szExePath);
 	return strAppPath;
+}
+
+BOOL bCompare(const BYTE* pData, const BYTE* bMask, const char* szMask)
+{
+	for (; *szMask; ++szMask, ++pData, ++bMask)
+		if (*szMask == 'x' && *pData != *bMask)   return 0;
+	return (*szMask) == NULL;
+}
+
+DWORD FindPattern(DWORD dwdwAdd, DWORD dwLen, BYTE* bMask, char* szMask) //此处是
+{
+	for (DWORD i = 0; i < dwLen; i++)
+		if (bCompare((BYTE*)(dwdwAdd + i), bMask, szMask))  return (DWORD)(dwdwAdd + i);
+	return 0;
+}
+
+union Base
+{
+	DWORD   address;
+	BYTE    data[4];
+};
+
+/************************************************************************/
+/* 函数说明：根据特征码扫描基址
+/* 参数一：process 要查找的进程
+/* 参数二：markCode 特征码字符串,不能有空格
+/* 参数三：特征码离基址的距离，默认距离：1
+/* 参数四：findMode 扫描方式，找到特征码后，默认为：1
+/*                  0：往上找基址（特征码在基址下面）
+/*                  1：往下找基址（特征码在基址上面）
+/* 参数五：offset 保存基址距离进程的偏移，默认为：不保存
+/************************************************************************/
+DWORD ScanAddress(HANDLE process, char* markCode,
+	DWORD distinct = 1, DWORD findMode = 1,
+	LPDWORD offset = NULL)
+{
+	//起始地址  
+	const DWORD beginAddr = 0x00400000;
+	//结束地址  
+	const DWORD endAddr = 0x7FFFFFFF;
+	//每次读取游戏内存数目的大小  
+	const DWORD pageSize = 4096;
+
+	//处理特征码 
+	//特征码长度不能为单数  
+	if (strlen(markCode) % 2 != 0) return 0;
+	//特征码长度  
+	int len = strlen(markCode) / 2;
+	//将特征码转换成byte型  
+	BYTE* m_code = new BYTE[len];
+	for (int i = 0; i < len; i++) {
+		char c[] = { markCode[i * 2], markCode[i * 2 + 1], '\0' };
+		*m_code = (BYTE)::strtol(c, NULL, 16);
+	}
+
+	/*查找特征码*/
+	BOOL _break = FALSE;
+	//用来保存在第几页中的第几个找到的特征码  
+	int curPage = 0;
+	int curIndex = 0;
+	Base base;
+	//每页读取4096个字节  
+	BYTE page[pageSize];
+	DWORD tmpAddr = beginAddr;
+	while (tmpAddr <= endAddr - len) {
+		::ReadProcessMemory(process, (LPCVOID)tmpAddr, &page, pageSize, 0);
+		//在该页中查找特征码  
+		for (int i = 0; i < pageSize; i++) {
+			for (int j = 0; j < len; j++) {
+				//只要有一个与特征码对应不上则退出循环  
+				if (m_code[j] != page[i + j])break;
+				//找到退出所有循环  
+				if (j == len - 1) {
+					_break = TRUE;
+					if (!findMode) {
+						curIndex = i;
+						base.data[0] = page[curIndex - distinct - 4];
+						base.data[1] = page[curIndex - distinct - 3];
+						base.data[2] = page[curIndex - distinct - 2];
+						base.data[3] = page[curIndex - distinct - 1];
+					}
+					else {
+						curIndex = i + j;
+						base.data[0] = page[curIndex + distinct + 1];
+						base.data[1] = page[curIndex + distinct + 2];
+						base.data[2] = page[curIndex + distinct + 3];
+						base.data[3] = page[curIndex + distinct + 4];
+					}
+					break;
+				}
+			}
+			if (_break) break;
+		}
+		if (_break) break;
+		curPage++;
+		tmpAddr += pageSize;
+	}
+	if (offset != NULL) {
+		*offset = curPage * pageSize + curIndex + beginAddr;
+	}
+	return base.address;
+}
+
+/************************************************************************/
+/* 函数说明：根据特征码扫描call地址
+/* 参数一：process 要查找的进程
+/* 参数二：markCode 特征码字符串,不能有空格
+/* 参数三：特征码离基址的距离，默认距离：1
+/* 参数四：findMode 扫描方式，找到特征码后，默认为：1
+/*                  0：往上找基址
+/*                  1：往下找基址
+/************************************************************************/
+DWORD ScanCall(HANDLE process, char* markCode,
+	DWORD distinct = 1, DWORD findMode = 1)
+{
+	DWORD offset;
+	DWORD call = ScanAddress(process, markCode, distinct, findMode, &offset);
+	call += offset;
+	if (findMode) call = call + 5 + distinct;
+	else call = call - distinct;
+	return call;
+}
+
+VOID FindDM()
+{
+	DWORD addr = ScanAddress(GetCurrentProcess(), "7889");
+
+	DWORD dwModuleBase = (DWORD)GetModuleHandle(_T("dm.dll"));
+	MODULEINFO modinfo;
+	GetModuleInformation(GetCurrentProcess(), GetModuleHandle(_T("dm.dll")), &modinfo, sizeof(MODULEINFO));
+	DWORD dwModuleSize = modinfo.SizeOfImage;
+	printf("模块基址: %x , 模块大小: %x \n", dwModuleBase, dwModuleSize);
+	printf("聊天基址搜索中....\n");
+	auto dizhi = FindPattern(dwModuleBase, dwModuleSize, (PBYTE)"0066F078", "xxxxxx????xx????xxxxx????xxxxxxxxxxxxx????xxx");
+	//////////////////////////////  LOL聊天特征码
+	if (dizhi != 0)
+	{
+		printf("找到聊天基址: %x\n", dizhi);
+	}
+	else
+	{
+		printf("好像没找到聊天基址!可能游戏更新了...特征码变了 嘎嘎\n");
+
+	}
 }
 
 void CQQLoginDlg::ScreenShot(void)
@@ -261,6 +406,7 @@ void CQQLoginDlg::ScreenShot(void)
 	}
 	GlobalFree(lpdata);
 }
+
 BOOL CQQLoginDlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
@@ -340,7 +486,7 @@ BOOL CQQLoginDlg::OnInitDialog()
 		m_an.SetPath(res.c_str());
 
 		m_dm = m_an.GetBankObject();
-		
+
 		if (m_dm.Ver().empty())
 		{
 			m_dm.SetBasePath(res.c_str());
@@ -352,7 +498,8 @@ BOOL CQQLoginDlg::OnInitDialog()
 			m_dm.SetPath(res.c_str());
 			m_dm.SetDict(0, _T("qqDict.txt"));
 		}
-		
+
+		GetQQNickName(_T("2629782044"));
 
 		generic_string strVer = m_an.Ver();
 		//设置标题
@@ -657,7 +804,8 @@ void CQQLoginDlg::BatchStartQQ()
 			{
 				m_dm.SetFindX(x2);
 				m_dm.SetFindY(y2);
-				long nImgId = m_dm.FindImg(_T("提示.bmp|登.bmp|取.bmp"));
+				long nImgId = m_dm.FindImg(_T("提示.bmp|登.bmp|取.bmp|验证.bmp|自.bmp|登录中.bmp"));
+				LOG_INFO << "查找图片结果:" << nImgId;
 				switch (nImgId)
 				{
 				case 0:  //已经登录成功
@@ -668,6 +816,8 @@ void CQQLoginDlg::BatchStartQQ()
 				case 1:  //还在登录界面
 				{
 					info.bLogin = (m_dm.FindStrAn(_T("重复"), _T("b@f9f3d3-101010")) > -1);
+					LOG_INFO << "是否已经重复登录:" << info.bLogin;
+					m_an.SetWindowState(qqHwnd, 0);
 					break;
 				}
 				case 2:   //等待登录
@@ -689,7 +839,27 @@ void CQQLoginDlg::BatchStartQQ()
 					info.bLogin = bSuccess;
 					break;
 				}
-
+				case 4:
+				{
+					info.bLogin = true;
+					m_an.SetWindowState(qqHwnd, 0);
+					m_listQQ.SetItemText(i, 2, _T("设备验证"));
+					break;
+				}
+				case 5:      //自动登录没有选中
+				{
+					m_an.SetWindowState(qqHwnd, 0);  //关闭窗口
+					info.bLogin = true;
+					break;
+				}
+				case 6:
+				{
+					while (m_dm.WaitImg(_T("登录中*.bmp"), 1.0) > PLUG_FAILED)
+					{
+						m_an.Delays(100, 200);
+					}
+					break;
+				}
 				default:
 					break;
 				}
@@ -746,6 +916,153 @@ void CQQLoginDlg::RunQQApp(LPCTSTR pszHistory)
 	}
 }
 
+
+
+void CQQLoginDlg::GetQQNickName(LPCTSTR pszQQ)
+{
+	try
+	{
+
+		//TCHAR szUrl[] = _T("http://localhost.ptlogin2.qq.com:4300/mc_get_uins");
+		CString strUrl;
+		strUrl.Format(_T("https://r.qzone.qq.com/fcg-bin/cgi_get_portrait.fcg?uins=%s"), pszQQ);
+
+		Ryeol::CHttpClientW			m_objHttpClient;
+		Ryeol::CHttpResponse_ptr	pobjRes;
+		m_objHttpClient.SetInternet(_T("My User Agent v1.0"));
+		m_objHttpClient.SetUseUtf8(TRUE);
+
+		pobjRes.reset(m_objHttpClient.RequestGet(strUrl));
+
+		const DWORD		cbBuff = 1024 * 10;
+		BYTE			byBuff[cbBuff] = { 0 };
+		DWORD			dwRead;
+		size_t			cbSize = 0;
+		anstringA retstr;
+		dwRead = pobjRes->ReadContent(byBuff, cbBuff - 1);
+
+		while (dwRead) {
+			cbSize += dwRead;
+			byBuff[dwRead] = '\0';
+			retstr += (reinterpret_cast<LPCSTR>(byBuff));
+			memset(byBuff, 0, _countof(byBuff));
+			dwRead = pobjRes->ReadContent(byBuff, cbBuff - 1);
+		}
+
+		if (retstr.empty())
+			return;
+		using namespace AnStrings;
+
+		Json::CharReaderBuilder b;
+		std::shared_ptr<Json::CharReader> JsonReader(b.newCharReader());
+		Json::Value JsonRoot;
+		anstringA errs;
+
+		anstringA tmpstr = retstr.mid("(", ")");
+
+		JsonReader->parse(tmpstr.c_str(), tmpstr.c_str() + tmpstr.length(), &JsonRoot, &errs);
+
+		switch (JsonRoot.type())
+		{
+		case Json::objectValue:
+		{
+			Json::Value::Members members;
+			members = JsonRoot.getMemberNames();   // 获取所有key的值
+
+			for (Json::Value::Members::iterator iterMember = members.begin(); iterMember != members.end(); iterMember++)   // 遍历每个key
+			{
+				std::string strKey = *iterMember;
+				if (JsonRoot[strKey.c_str()].isString())
+				{
+					std::string strVal = JsonRoot[strKey.c_str()].asString();
+					TraceDebugStringA("%s:%s", strKey.c_str(), strVal.c_str());
+				}
+				else if (JsonRoot[strKey.c_str()].isInt())
+				{
+					int iVal = JsonRoot[strKey.c_str()].asInt();
+					TraceDebugStringA("%s:%d", strKey.c_str(), iVal);
+				}
+				else if (JsonRoot[strKey.c_str()].isDouble())
+				{
+					double dVal = JsonRoot[strKey.c_str()].asDouble();
+					TraceDebugStringA("%s:%f", strKey.c_str(), dVal);
+				}
+				else
+				{
+					anstringW strNickName = CCodeConvert::AnsiToUnicode(strKey.c_str(), CP_UTF8);
+
+					std::string strVal = JsonRoot[strKey.c_str()].toStyledString();
+
+					Json::Value jsArr;
+					const char* pstr = strVal.c_str();
+					JsonReader->parse(pstr, pstr + strlen(pstr), &jsArr, &errs);
+					switch (jsArr.type())
+					{
+					case Json::arrayValue:
+					{
+						for (int i = 0; i < (int)jsArr.size(); i++)
+						{
+							auto jsVal = jsArr[i];
+							switch (jsVal.type())
+							{
+							case Json::stringValue:
+							{
+								auto tmpstr = CCodeConvert::GbkToUnicode(jsVal.asCString());
+								if (tmpstr.find(_T("\\u")) != anstringA::npos)
+								{
+									m_qqStatusMap[strNickName].name = tmpstr;
+								}
+								else if (tmpstr.find(_T("http")) == anstringA::npos)
+								{
+									m_qqStatusMap[strNickName].name = tmpstr;
+								}
+								break;
+							}
+							case Json::intValue:
+							{
+								//LOG_INFO << jsVal.asInt();
+								break;
+							}
+							default:
+								LOG_INFO << "Json::ValueType : " << jsVal.type();
+								ASSERT(FALSE);
+								break;
+							}
+
+						}
+						break;
+					}
+					default:
+						LOG_INFO << "Json::ValueType : " << jsArr.type();
+						ASSERT(FALSE);
+						break;
+					}
+					//TraceDebugStringA("%s:%s", strKey.c_str(), CCodeConvert::USCToAnsi(strVal).c_str());
+				}
+			}
+			members.clear();
+			decltype(members) tmp;
+			members.swap(tmp);
+			break;
+		}
+		default:
+			LOG_INFO << "Json::ValueType : " << JsonRoot.type();
+			ASSERT(FALSE);
+			break;
+		}
+
+	}
+	catch (Ryeol::CHttpClient::Exception& e)
+	{
+		TCHAR		szMsg[512];
+		Ryeol::GetWinInetErrMsg(szMsg, 512, e.Win32LastError());
+		StringCchCat(szMsg, 512, _T("\r\n"));
+		StringCchCat(szMsg, 512, e.errmsg());
+		LOG_INFO << szMsg;
+		AfxMessageBox(szMsg);
+	}
+}
+
 //获取已经登录的QQ账号
 void CQQLoginDlg::GetLoginQQ()
 {
@@ -774,79 +1091,13 @@ void CQQLoginDlg::GetLoginQQ()
 			info.name = it->second;
 
 			m_qqStatusMap.insert(it->first, info);
+			GetQQNickName(it->first.c_str());
 		}
-		/*TCHAR szUrl[] = _T("http://localhost.ptlogin2.qq.com:4300/mc_get_uins");
-
-		Ryeol::CHttpClientW			m_objHttpClient;
-		Ryeol::CHttpResponse_ptr	pobjRes;*/
-		//m_objHttpClient.SetInternet(_T("My User Agent v1.0"));
-		//m_objHttpClient.SetUseUtf8(FALSE);
-
-		//pobjRes.reset(m_objHttpClient.RequestGet(szUrl));
-
-		//const DWORD		cbBuff = 1024 * 10;
-		//BYTE			byBuff[cbBuff] = { 0 };
-		//DWORD			dwRead;
-		//size_t			cbSize = 0;
-		//generic_string ret;
-		//std::string retstr;
-		//dwRead = pobjRes->ReadContent(byBuff, cbBuff - 1);
-
-		//while (dwRead) {
-		//	cbSize += dwRead;
-		//	byBuff[dwRead] = '\0';
-		//	retstr += (reinterpret_cast<LPCSTR>(byBuff));
-		//	memset(byBuff, 0, _countof(byBuff));
-		//	dwRead = pobjRes->ReadContent(byBuff, cbBuff - 1);
-		//}
-
-		//if (retstr.empty())
-		//	return;
-
-		//ret = CCodeConvert::Utf8ToUnicode(retstr.c_str());
-		//
-		//Json::CharReaderBuilder b;
-		//Json::CharReader* JsonReader(b.newCharReader());
-		//Json::Value JsonRoot;
-		//JSONCPP_STRING errs;
-
-		//std::string pstr = CCodeConvert::UTF8ToAnsi(retstr.c_str());
-
-		//JsonReader->parse(pstr.c_str(), pstr.c_str() + pstr.length(), &JsonRoot, &errs);
-
-		//
-		////long qqX = nWidth / JsonRoot.size();
-
-		//for (i = 0; i < JsonRoot.size(); i++)
-		//{
-		//	TCHAR szuin[MAX_PATH] = { 0 };
-		//	TCHAR sznickname[MAX_PATH] = { 0 };
-		//	int iLen = MAX_PATH;
-		//	CCodeConvert::AnsiToUnicode(JsonRoot[i]["uin"].asCString(), szuin, iLen);
-		//	CCodeConvert::AnsiToUnicode(JsonRoot[i]["nickname"].asCString(), sznickname,iLen);
-
-		//	qqInfo info;
-		//	info.bLogin = true;
-		//	info.pt.x = 300 * (i + 1);
-		//	info.pt.y = -2;
-
-		//	if (info.pt.x > nWidth)
-		//		info.pt.x -= nWidth;
-
-		//	info.name = sznickname;
-
-		//	m_qqStatusMap[szuin] = info; 
-		//}
 
 	}
-	catch (Ryeol::CHttpClient::Exception& e)
+	catch (...)
 	{
-		TCHAR		szMsg[512];
-		Ryeol::GetWinInetErrMsg(szMsg, 512, e.Win32LastError());
-		StringCchCat(szMsg, 512, _T("\r\n"));
-		StringCchCat(szMsg, 512, e.errmsg());
-		LOG_INFO << szMsg;
-		AfxMessageBox(szMsg);
+
 	}
 
 }
@@ -1516,8 +1767,6 @@ void CQQLoginDlg::OnBnClickedCkmanual()
 
 
 	__super::OnOK();
-
-
 }
 
 

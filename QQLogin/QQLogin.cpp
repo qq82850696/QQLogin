@@ -48,10 +48,10 @@ CQQLoginApp::CQQLoginApp() :m_SingleApp(_T("Global\\QQLoginApp"))
 	_CrtSetBreakAlloc(4299);
 	//_CrtSetBreakAlloc(4081);
 	//_CrtSetBreakAlloc(4084);
-	//for (size_t i = 6709; i < 6712; i++)
-	//{
-	//	_CrtSetBreakAlloc(i);
-	//}
+	/*for (size_t i = 11726; i < 11731; i++)
+	{
+		_CrtSetBreakAlloc(i);
+	}*/
 
 
 }

@@ -75,6 +75,8 @@ private:
     void BatchStartQQ();
 	//启动QQ
 	void RunQQApp(LPCTSTR pszHistory);
+	//获取QQ昵称
+	void GetQQNickName(LPCTSTR pszQQ);
 	//获取已经登录的QQ账号
 	void GetLoginQQ();
 	//加载皮肤文件
