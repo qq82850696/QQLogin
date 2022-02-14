@@ -100,7 +100,7 @@ CQQLoginDlg::CQQLoginDlg(CWnd* pParent /*=nullptr*/)
 
 CQQLoginDlg::~CQQLoginDlg()
 {
-
+	
 }
 
 void CQQLoginDlg::DoDataExchange(CDataExchange* pDX)
@@ -232,7 +232,8 @@ DWORD ScanAddress(HANDLE process, char* markCode,
 	LPDWORD offset = NULL)
 {
 	//起始地址  
-	const DWORD beginAddr = 0x00400000;
+	//const DWORD beginAddr = 0x00400000;
+	const DWORD beginAddr = (DWORD)GetModuleHandle(_T("dm.dll"));
 	//结束地址  
 	const DWORD endAddr = 0x7FFFFFFF;
 	//每次读取游戏内存数目的大小  
@@ -499,13 +500,14 @@ BOOL CQQLoginDlg::OnInitDialog()
 			m_dm.SetDict(0, _T("qqDict.txt"));
 		}
 
-		GetQQNickName(_T("2629782044"));
+		//m_an.RunApp(_T("E:\\实用工具\\PYG工具包\\飘云阁工具箱.exe"), 0);
+		//m_an.RunApp(_T("E:\\实用工具\\按键精灵工具包\\VStart.exe"), 0);
 
 		generic_string strVer = m_an.Ver();
 		//设置标题
 		CString strTitle;
 		strTitle.LoadString(AFX_IDS_APP_TITLE);
-		strTitle.AppendFormat(_T("-%s"), strVer.c_str());
+		strTitle.AppendFormat(_T("-%s dm: %s"), strVer.c_str(), m_dm.Ver().c_str());
 		SetWindowText(strTitle.GetBuffer());
 
 		m_qqMgr.SetPlug(m_an);
@@ -784,18 +786,42 @@ void CQQLoginDlg::BatchStartQQ()
 			VERIFY(TRUE == m_an.CopyFile(strHistory.GetBuffer(), strLBText.GetBuffer()));
 		}
 		LOG_INFO << "开始启动QQ:" << strItem.GetBuffer();
-
-		lret = m_an.RunApp(strQQPath.GetBuffer(), 2);
-
+		m_qqMgr.CloseQQStartWnd();
+		TestUseTime;
+		int iPos = strQQPath.ReverseFind('.');
+		if (iPos <= 0)
+		{
+			auto qqFile = m_an.EnumFile(_T("QQ.exe"), strQQPath.GetBuffer());
+			lret = m_an.RunApp(qqFile.c_str(), 2);
+		}
+		else
+		{
+			lret = m_an.RunApp(strQQPath.GetBuffer(), 2);
+		}
+		
 		long dt = 10;
 		_stscanf_s(m_strInterval.GetBuffer(), _T("%d"), &dt);
+		if (dt < 5)
+		{
+			dt = 10;
+		}
 		m_qqMgr.Delay(dt, 2);
-		LOG_INFO << _T("检查QQ是否启动完成");
+
+		float fTime = testTime.EndTime() / 1000;
+		if (abs(dt - fTime) > 2)
+		{
+			LOG_ERROR << "等待失败,重新等待";
+			Delay(dt * 1000);
+		}
+
+		LOG_INFO << dt << "检查QQ是否启动完成,等待时间" << fTime;
 		if (m_bExit)
 		{
 			return;
 		}
-		long qqHwnd = m_an.FindWindow(_T("TXGuiFoundation"), _T("QQ"));
+
+		long qqHwnd = m_an.WaitWindow(_T("TXGuiFoundation"), _T("QQ"), 495, 470, 10);
+		ASSERT(qqHwnd != 0);
 		if (qqHwnd > 0)
 		{
 			long x1, x2, y1, y2;
@@ -804,7 +830,7 @@ void CQQLoginDlg::BatchStartQQ()
 			{
 				m_dm.SetFindX(x2);
 				m_dm.SetFindY(y2);
-				long nImgId = m_dm.FindImg(_T("提示.bmp|登.bmp|取.bmp|验证.bmp|自.bmp|登录中.bmp"));
+				long nImgId = m_dm.WaitImg2(x1, x2, y1, y2, _T("提示.bmp|登.bmp|取.bmp|验证.bmp|自.bmp|登录中.bmp"), 1.0);
 				LOG_INFO << "查找图片结果:" << nImgId;
 				switch (nImgId)
 				{
@@ -815,7 +841,7 @@ void CQQLoginDlg::BatchStartQQ()
 				}
 				case 1:  //还在登录界面
 				{
-					info.bLogin = (m_dm.FindStrAn(_T("重复"), _T("b@f9f3d3-101010")) > -1);
+					info.bLogin = (m_dm.WaitStr2(x1, x2, y1, y2, _T("重复"), _T("b@f9f3d3-101010"), 1.0) > -1);
 					LOG_INFO << "是否已经重复登录:" << info.bLogin;
 					m_an.SetWindowState(qqHwnd, 0);
 					break;
@@ -854,7 +880,7 @@ void CQQLoginDlg::BatchStartQQ()
 				}
 				case 6:
 				{
-					while (m_dm.WaitImg(_T("登录中*.bmp"), 1.0) > PLUG_FAILED)
+					while (m_dm.WaitImg2(x1, x2, y1, y2, _T("登录中*.bmp"), 1.0) > PLUG_FAILED)
 					{
 						m_an.Delays(100, 200);
 					}
@@ -873,12 +899,14 @@ void CQQLoginDlg::BatchStartQQ()
 				}
 			}
 		}
-
+		qqHwnd = m_an.WaitWindow(_T("TXGuiFoundation"), _T("QQ"), 300, 710);
+		LOG_INFO << "QQ登录成功的窗口句柄:" << qqHwnd;
 		//判断QQ是否启动成功
-		if (m_qqMgr.CheckQQInterface() || false == m_qqMgr.IsQQRunning(strItem) || m_qqMgr.GetQQProcessNum() > nStartCount)
+		if (m_qqMgr.CheckQQInterface() || qqHwnd <= 0 || m_qqMgr.GetQQProcessNum() > nStartCount)
 		{
 			m_qqMgr.CloseQQStartWnd();
 		}
+
 		if (qqHwnd > 0)
 		{
 			m_an.SetWindowState(qqHwnd, 3);
@@ -1603,7 +1631,7 @@ void CQQLoginDlg::OnDestroy()
 	m_qqStatusMap.clear();
 	qqInfo_Map tmp;
 	m_qqStatusMap.swap(tmp);
-
+	
 	m_an.DestoryObject();
 
 }

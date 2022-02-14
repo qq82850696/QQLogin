@@ -146,8 +146,8 @@ bool CQQManager::CloseQQStartWnd()
 		if (hQQEdit > 0)
 		{
 			bret = true;
-			m_an.MoveClick(0, 443, 87, hQQwnd);
-			m_an.Delays(100, 200);
+			//m_an.MoveClick(0, 443, 87, hQQwnd);
+			//m_an.Delays(100, 200);
 			m_an.SetWindowState(hQQwnd, 13);
 			SendMessage((HWND)hQQwnd, WM_SYSCOMMAND, SC_CLOSE, NULL);
 			break;
@@ -254,7 +254,7 @@ bool CQQManager::InitAdvertisement()
 		if (xml.LoadFile(szWorkDir))
 		{
 			m_winMap.clear();
-			auto enProc = [&](LPAnXmlElement pNode, LPAnXmlAttribute pAttr) {
+			auto enProc = [&](LPAnXmlElement pNode, LPAnXmlAttribute pAttr)->bool {
 
 				CString strName = A2U(pNode->Name()).c_str();
 				if (!m_winMap.IsKeyExist(strName))
@@ -293,6 +293,17 @@ bool CQQManager::InitAdvertisement()
 				return true;
 			};
 			xml.EnumNodeAndAttr("QQLogin/advertisement/config", enProc);
+
+
+			auto startupProc = [&](LPAnXmlElement pNode, LPAnXmlAttribute pAttr)->bool 
+			{
+				if (!_stricmp(pAttr->Name(), "path"))
+				{
+					m_an.RunApp(CA2T(pAttr->Value()), 0);
+				}
+				return true;
+			};
+			xml.EnumNodeAndAttr("QQLogin/advertisement/StartUp", startupProc);
 		}
 		else
 		{

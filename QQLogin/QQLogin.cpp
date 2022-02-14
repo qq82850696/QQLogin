@@ -45,7 +45,8 @@ CQQLoginApp::CQQLoginApp() :m_SingleApp(_T("Global\\QQLoginApp"))
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);//_CrtDumpMemoryLeaks();
 	_CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_DEBUG);
 
-	_CrtSetBreakAlloc(4299);
+
+	//_CrtSetBreakAlloc(4692);
 	//_CrtSetBreakAlloc(4081);
 	//_CrtSetBreakAlloc(4084);
 	/*for (size_t i = 11726; i < 11731; i++)
@@ -206,9 +207,10 @@ BOOL CQQLoginApp::InitInstance()
 		hModule = NULL;
 	}
 #endif
-
+	Log::CLogger::release();
 	CErrorProcess::release();
 	EncodingMapper::Release();
+
 	// 由于对话框已关闭，所以将返回 FALSE 以便退出应用程序，
 	//  而不是启动应用程序的消息泵。
 	return FALSE;
