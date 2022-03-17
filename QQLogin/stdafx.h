@@ -82,6 +82,6 @@
 
 
 #include <json/json.h>
-#pragma comment(lib,ANIU_LIB_COMMENT(libjson))
+//#pragma comment(lib,ANIU_LIB_COMMENT(json))
 #pragma comment(lib,ANIU_LIB_COMMENT(AniuLibStatic))
 #pragma comment(lib,ANIU_LIB_COMMENT(AnComHelper))

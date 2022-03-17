@@ -178,7 +178,7 @@ bool CQQManager::QQIsRunning(LPCTSTR pszQQDocPath, LPCTSTR pszQQ)
 		strPath = A2T(strDir.Left(nPos + 1));
 	}
 
-	strQQMsg.Format(_T("%s%s%s\\Msg3.0index.db"), CA2T(drive), strPath.GetBuffer(), pszQQ);
+	strQQMsg.Format(_T("%s%s%s\\Msg3.0index.db"), (LPCTSTR)CA2T(drive), strPath.GetBuffer(), pszQQ);
 	//判断文件是否存在,如果存在判断最后修改时间,不存在说明没有登录过
 	if (m_an.IsFileExist(strQQMsg))
 	{
@@ -297,6 +297,7 @@ bool CQQManager::InitAdvertisement()
 
 			auto startupProc = [&](LPAnXmlElement pNode, LPAnXmlAttribute pAttr)->bool 
 			{
+				UNREFERENCED_PARAMETER(pNode);
 				if (!_stricmp(pAttr->Name(), "path"))
 				{
 					m_an.RunApp(CA2T(pAttr->Value()), 0);

@@ -23,8 +23,9 @@
 #ifdef DLL_DYN
 extern _WriteIoPortByte WriteIoPortByte;
 #endif
+
 //定位到搜索框
-DWORD WINAPI thread(LPVOID lp)
+DWORD WINAPI threadProc(LPVOID lp)
 {
 	//int sj = 5000;
 	RECT* rr = (RECT*)lp;
@@ -256,7 +257,7 @@ DWORD ScanAddress(HANDLE process, char* markCode,
 	//用来保存在第几页中的第几个找到的特征码  
 	int curPage = 0;
 	int curIndex = 0;
-	Base base;
+	Base base = {};
 	//每页读取4096个字节  
 	BYTE page[pageSize];
 	DWORD tmpAddr = beginAddr;
@@ -1035,14 +1036,14 @@ void CQQLoginDlg::GetQQNickName(LPCTSTR pszQQ)
 							{
 							case Json::stringValue:
 							{
-								auto tmpstr = CCodeConvert::GbkToUnicode(jsVal.asCString());
-								if (tmpstr.find(_T("\\u")) != anstringA::npos)
+								auto tmpstr1 = CCodeConvert::GbkToUnicode(jsVal.asCString());
+								if (tmpstr1.find(_T("\\u")) != anstringA::npos)
 								{
-									m_qqStatusMap[strNickName].name = tmpstr;
+									m_qqStatusMap[strNickName].name = tmpstr1;
 								}
-								else if (tmpstr.find(_T("http")) == anstringA::npos)
+								else if (tmpstr1.find(_T("http")) == anstringA::npos)
 								{
-									m_qqStatusMap[strNickName].name = tmpstr;
+									m_qqStatusMap[strNickName].name = tmpstr1;
 								}
 								break;
 							}
@@ -1302,7 +1303,7 @@ void CQQLoginDlg::LoginQQ(LPCTSTR pszAccount, LPCTSTR pszPwd)
 
 		r.left += 300;
 		r.top += 255;
-		CHANDLE hh = CreateThread(NULL, 0, thread, &r, NULL, NULL);
+		CHANDLE hh = CreateThread(NULL, 0, threadProc, &r, NULL, NULL);
 		m_an.MoveTo(300, 255);
 		Delay(100);
 		m_an.LeftDoubleClick();
@@ -1316,7 +1317,7 @@ void CQQLoginDlg::LoginQQ(LPCTSTR pszAccount, LPCTSTR pszPwd)
 		r = rect;
 		r.left += 300;
 		r.top += 290;
-		CHANDLE h2 = CreateThread(NULL, 0, thread, &r, NULL, NULL);
+		CHANDLE h2 = CreateThread(NULL, 0, threadProc, &r, NULL, NULL);
 		m_an.MoveTo(300, 290);
 		Delay(100);
 		m_an.LeftClick();
@@ -1549,7 +1550,7 @@ void CQQLoginDlg::OnNMDblclkListqq(NMHDR* pNMHDR, LRESULT* pResult)
 
 	CString strQQ = m_listQQ.GetItemText(pNMItemActivate->iItem, 1);
 	CString strRun = m_listQQ.GetItemText(pNMItemActivate->iItem, 2);
-	if (!strQQ.IsEmpty() && strRun.Compare(QQ_RUN))
+	if (!strQQ.IsEmpty())
 	{
 		RunQQApp(strQQ);
 	}
