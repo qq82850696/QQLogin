@@ -30,3 +30,13 @@
 *.exe
 *.out
 *.app
+/QQLogin/Debug
+/QQLogin/Release
+/Release
+/.vs/QQLogin
+/Debug
+/.vs
+/QQLogin.sdf
+/x64/Debug
+/QQLogin.rar
+/gittoken.txt

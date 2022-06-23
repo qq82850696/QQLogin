@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<QQLogin>
+    <advertisement>
+        <config>            
+            <Test1 class="TXGuiFoundation" title="腾讯网迷你版" ClosePos="" CloseType="0" enable="1"></Test1>
+            <Test2 class="TXGuiFoundation" title="安全检测" ClosePos="" CloseType="0" enable="1"></Test2>
+            <Test3 class="TXGuiFoundation" title="QQ精选" ClosePos="584,26" CloseType="0" enable="1"></Test3>
+            <Test4 class="360SpeedldMainwndClass" title="QQ360晚间推荐" ClosePos="" CloseType="0" enable="1"></Test4>
+            <Test5 class="360AutoClean" title="360自动清理" ClosePos="" CloseType="0" enable="1"></Test5>
+            <Test6 class="Q360Medallwall" title="勋章墙" ClosePos="" CloseType="0" enable="1"></Test6>
+            <Test7 class="360NewPopClass" title="焦点资讯" ClosePos="" CloseType="0" enable="1"></Test7>
+            <Test8 class="MsgSrvPushTipClass" title="" ClosePos="" CloseType="0" enable="1"></Test8>
+            <Test9 class="TXGuiFoundation" title="QQ网吧" ClosePos="784,25" CloseType="0" enable="1"></Test9>
+        </config>
+    </advertisement>
+    <!--CloseType: 0.后台关闭; 1. 鼠标后台关闭; 2. 鼠标前台关闭;-->
+</QQLogin>
