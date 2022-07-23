@@ -30,6 +30,8 @@
 *.exe
 *.out
 *.app
+*.txt
+*.xml
 /QQLogin/Debug
 /QQLogin/Release
 /Release

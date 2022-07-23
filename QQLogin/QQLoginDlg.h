@@ -10,13 +10,13 @@
 typedef CAnMapT<CString, bool> CString_bool_Map;
 
 // CQQLoginDlg 对话框
-class CQQLoginDlg : public CDialogEx 
+class CQQLoginDlg : public CDialogEx
 {
-// 构造
+	// 构造
 public:
 	CQQLoginDlg(CWnd* pParent = nullptr);	// 标准构造函数
 	virtual ~CQQLoginDlg();
-// 对话框数据
+	// 对话框数据
 #ifdef AFX_DESIGN_TIME
 	enum { IDD = IDD_QQLOGIN_DIALOG };
 #endif
@@ -69,10 +69,16 @@ private:
 	void SaveSetting();
 	//读取设置
 	void GetSetting();
-    //填充列表框
-    void FillListControl();
-    //批量启动QQ
-    void BatchStartQQ();
+	//填充列表框
+	void FillListControl();
+	//复制QQ文件
+	bool CopyQQFile(const CString& strItem);
+	//检查qq界面
+	bool CheckQQInterface(qqInfo& info, int nStartCount, int i);
+	//批量启动QQ
+	void BatchStartQQ();
+	//输入密码
+	void InputPassword(const generic_string& password);
 	//启动QQ
 	void RunQQApp(LPCTSTR pszHistory);
 	//获取QQ昵称
@@ -99,14 +105,14 @@ private:
 	afx_msg void OnBnClickedBtnbrowseQq();
 	afx_msg void OnBnClickedBtnbrowseDoc();
 	afx_msg void OnClose();
-    virtual void OnCancel();
-    virtual void OnOK();
+	virtual void OnCancel();
+	virtual void OnOK();
 	afx_msg void OnNcPaint();
 	afx_msg void OnStnClickedOpenfolder1();
 	afx_msg void OnStnClickedOpenfolder2();
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
-	afx_msg void OnLvnItemchangedListqq(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void OnNMDblclkListqq(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnLvnItemchangedListqq(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnNMDblclkListqq(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg LRESULT OnTrayIcon(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnMRunallqq();
 	afx_msg void OnMexit();
@@ -118,7 +124,7 @@ private:
 	afx_msg void OnCbnSelchangeCbskin();
 	afx_msg void OnCbnDblclkCbdocpath();
 
-	
+
 public:
 	afx_msg void OnBnClickedCkmanual();
 	afx_msg void OnBnClickedBtncalc();

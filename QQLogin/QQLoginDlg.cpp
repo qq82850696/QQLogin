@@ -15,7 +15,7 @@
 #define new DEBUG_NEW
 #endif
 
-
+using namespace AnStrings;
 
 #define QQ_RUN    _T("已启动")
 #define QQ_STOP   _T("未启动")
@@ -101,7 +101,7 @@ CQQLoginDlg::CQQLoginDlg(CWnd* pParent /*=nullptr*/)
 
 CQQLoginDlg::~CQQLoginDlg()
 {
-	
+
 }
 
 void CQQLoginDlg::DoDataExchange(CDataExchange* pDX)
@@ -473,13 +473,14 @@ BOOL CQQLoginDlg::OnInitDialog()
 
 		//m_an.RegAniu(L"802654b34a8145cfbde889eb8d64c163");
 		ANPLUG_ASSERT(m_an.IsValid(), "CreateObject m_an Faild!");
-		//ASSERT(m_an.IsValid());
+		
 		//m_an.EndProcessByName(_T("QQ.exe"));
+		LOG_ERROR << m_an.GetPath();
 		CString strAppPath;
 		DWORD dwRet = GetModuleFileName(NULL, strAppPath.GetBufferSetLength(MAX_PATH), MAX_PATH);
 		strAppPath.ReleaseBufferSetLength(dwRet);
 		strAppPath.Append(_T(" hide"));
-		m_an.AutoPowerOn(strAppPath);
+		m_an.HKEY_SetStartup(strAppPath);
 		LoadShe();
 
 		tstring tmpPath = strAppPath.GetBuffer();
@@ -488,7 +489,7 @@ BOOL CQQLoginDlg::OnInitDialog()
 		m_an.SetPath(res.c_str());
 
 		m_dm = m_an.GetBankObject();
-
+		m_dm.SetRegCode(_T("lwl796931762cef9a9d3460498fc27373b1f79a1da"));
 		if (m_dm.Ver().empty())
 		{
 			m_dm.SetBasePath(res.c_str());
@@ -497,13 +498,15 @@ BOOL CQQLoginDlg::OnInitDialog()
 		}
 		else
 		{
+			m_dm.Reg(_T("lwl796931762cef9a9d3460498fc27373b1f79a1da"), _T(""));
 			m_dm.SetPath(res.c_str());
 			m_dm.SetDict(0, _T("qqDict.txt"));
 		}
-
+		
+		//InputPassword(_T("Wo.Cao-Ni*904302"));
 		//m_an.RunApp(_T("E:\\实用工具\\PYG工具包\\飘云阁工具箱.exe"), 0);
 		//m_an.RunApp(_T("E:\\实用工具\\按键精灵工具包\\VStart.exe"), 0);
-
+		
 		generic_string strVer = m_an.Ver();
 		//设置标题
 		CString strTitle;
@@ -526,7 +529,7 @@ BOOL CQQLoginDlg::OnInitDialog()
 		InitListControl();
 		//读取设置
 		GetSetting();
-
+		
 		GetLoginQQ();
 		//填充列表框
 		FillListControl();
@@ -721,6 +724,145 @@ void CQQLoginDlg::FillListControl()
 	}
 }
 
+//复制QQ文件
+bool CQQLoginDlg::CopyQQFile(const CString& strItem)
+{
+	CString strHistory, strLBText;
+	strHistory.Format(_T("%s\\%s\\History.db"), (LPCTSTR)m_QQCfgPath, strItem.GetString());
+
+	for (int j = 0; j < m_cbDocPath.GetCount(); j++)
+	{
+		if (m_bExit)
+		{
+			return false;
+		}
+		m_cbDocPath.GetLBText(j, strLBText);
+		::DeleteFile(strLBText.GetBuffer());
+		::CopyFile(strHistory.GetBuffer(), strLBText.GetBuffer(), TRUE);
+		VERIFY(TRUE == m_an.DeleteFile(strLBText.GetBuffer()));
+		CryptoLib::STRX md5_1, md5_2;
+		for (size_t i = 0; i < 5; i++)
+		{
+			VERIFY(TRUE == m_an.CopyFile(strHistory.GetBuffer(), strLBText.GetBuffer()));
+			m_an.Delays(10, 30);
+			md5_1 = CryptoLib::Hash_MD5::GenerateFile(strHistory.GetString());
+			md5_2 = CryptoLib::Hash_MD5::GenerateFile(strLBText.GetString());
+			if (!md5_1.CompareNoCase(md5_2))
+			{
+				break;
+			}
+		}
+	}
+	return true;
+}
+
+//检查qq界面
+bool CQQLoginDlg::CheckQQInterface(qqInfo& info, int nStartCount, int i)
+{
+	bool bret = false;
+	long qqHwnd = m_an.WaitWindow(_T("TXGuiFoundation"), _T("QQ"), 495, 470, 10);
+	ASSERT(qqHwnd != 0);
+	if (qqHwnd > 0)
+	{
+		long x1, x2, y1, y2;
+		m_an.GetWindowRect(qqHwnd, &x1, &y1, &x2, &y2);
+		if (x2 > 0 && y2 > 0)
+		{
+			//m_dm.BindWindowS(qqHwnd, _T("normal"), _T("normal"), _T("normal"), _T(""), 0);
+			m_dm.SetFindX(x2);
+			m_dm.SetFindY(y2);
+			auto nImgId = m_dm.WaitImgS(_T("提示*.bmp|登.bmp|取.bmp|验证.bmp|自.bmp|登录中*.bmp"), 1.0);
+			LOG_INFO << "查找图片结果:" << nImgId;
+			if (nImgId.find(_T("提示")) != tstring::npos)
+			{
+				auto sRe = m_dm.WaitStrS(_T("重新|重复"), _T("434239-43423a"), 0.5);
+				if (sRe.empty())
+				{
+					LOG_INFO << "需要重新输入密码登录";
+					m_dm.SetWindowState(qqHwnd, 12);
+					Delays(200, 500);
+					InputPassword(info.password);
+					while (m_an.GetWindowState(qqHwnd, 0) && !m_bExit) {}
+				}
+				info.bLogin = sRe.empty();
+			}
+			else if (nImgId.find(_T("登录中")) != tstring::npos)
+			{
+				while (m_an.GetWindowState(qqHwnd,0) && !m_bExit && m_dm.WaitImg(_T("登录中*.bmp"), 1.0) > PLUG_FAILED)
+				{
+					m_an.Delays(1000, 2000);
+					auto sRe = m_dm.WaitStrS(_T("重新|重复"), _T("434239-43423a"), 0.5);
+					if (sRe.empty())
+					{
+						LOG_INFO << "需要重新输入密码登录";
+						m_dm.SetWindowState(qqHwnd, 12);
+						Delays(200, 500);
+						InputPassword(info.password);
+						break;
+					}
+				}
+			}
+			else if (nImgId.find(_T("登")) != tstring::npos) //还在登录界面
+			{
+				info.bLogin = (m_dm.WaitStr(_T("重复"), _T("b@f9f3d3-101010"), 1.0) > -1);
+				LOG_INFO << "是否已经重复登录:" << info.bLogin;
+				m_an.SetWindowState(qqHwnd, 0);
+			}
+			else if (nImgId.find(_T("取")) != tstring::npos)
+			{
+				bool bSuccess = true;
+				COleDateTime t = COleDateTime::GetCurrentTime();
+				//等待登录成功
+				while (IsWindow((HWND)qqHwnd) && m_bExit)
+				{
+					m_an.Delays(100, 500);
+					COleDateTimeSpan sp = COleDateTime::GetCurrentTime() - t;
+					if (sp.GetMinutes() > 5) //超时退出
+					{
+						bSuccess = false;
+						break;
+					}
+					m_an.Delays(100, 500);
+				}
+				info.bLogin = bSuccess;
+			}
+			else if (nImgId.find(_T("验证")) != tstring::npos) 
+			{
+				info.bLogin = true;
+				m_an.SetWindowState(qqHwnd, 0);
+				m_listQQ.SetItemText(i, 2, _T("设备验证"));
+			}
+			else if (nImgId.find(_T("自")) != tstring::npos) //自动登录没有选中
+			{
+				m_an.SetWindowState(qqHwnd, 0);  //关闭窗口
+				info.bLogin = true;
+			}
+			//m_dm.UnBindWindow();
+			if (info.bLogin)
+			{
+				return info.bLogin;
+			}
+		}
+	}
+	qqHwnd = m_an.WaitWindow(_T("TXGuiFoundation"), _T("QQ"), 300, 710);
+	LOG_INFO << "QQ登录成功的窗口句柄:" << qqHwnd;
+	//判断QQ是否启动成功
+	if (m_qqMgr.CheckQQInterface() || qqHwnd <= 0 || m_qqMgr.GetQQProcessNum() > nStartCount)
+	{
+		m_qqMgr.CloseQQStartWnd();
+	}
+
+	if (qqHwnd > 0)
+	{
+		m_an.SetWindowState(qqHwnd, 3);
+		info.hWnd = (HWND)qqHwnd;
+		m_an.MoveWindow(qqHwnd, info.pt.x, info.pt.y);
+		Delays(100, 200);
+	}
+
+	return bret;
+}
+
 //批量启动QQ
 void CQQLoginDlg::BatchStartQQ()
 {
@@ -747,8 +889,8 @@ void CQQLoginDlg::BatchStartQQ()
 
 		m_listQQ.SetItemText(i, 2, L"正在启动");
 
-		CString strLBText, tempstr;
-		CString strHistory, strItem;
+		CString tempstr;
+		CString strItem;
 		strItem = m_listQQ.GetItemText(i, 1);
 		tempstr.Format(_T("共%d个QQ号,正在启动第%d个:%s"), nCount, nStartCount, strItem.GetBuffer());
 		LOG_INFO << tempstr;
@@ -769,23 +911,8 @@ void CQQLoginDlg::BatchStartQQ()
 			continue;
 		}
 
-		LOG_INFO << _T("复制账号密码到QQ目录:") << nStartCount;
-		strHistory.Format(L"%s\\%s\\History.db", (LPCTSTR)m_QQCfgPath, strItem.GetBuffer());
+		if (!CopyQQFile(strItem)) return;
 
-		for (int j = 0; j < m_cbDocPath.GetCount(); j++)
-		{
-			if (m_bExit)
-			{
-				return;
-			}
-			m_cbDocPath.GetLBText(j, strLBText);
-			//m_an.FileOperation(strLBText.GetBuffer(), nullptr, 3);
-			//m_an.FileOperation(strHistory.GetBuffer(), strLBText.GetBuffer(), 1);
-			::DeleteFile(strLBText.GetBuffer());
-			::CopyFile(strHistory.GetBuffer(), strLBText.GetBuffer(), TRUE);
-			VERIFY(TRUE == m_an.DeleteFile(strLBText.GetBuffer()));
-			VERIFY(TRUE == m_an.CopyFile(strHistory.GetBuffer(), strLBText.GetBuffer()));
-		}
 		LOG_INFO << "开始启动QQ:" << strItem.GetBuffer();
 		m_qqMgr.CloseQQStartWnd();
 		TestUseTime;
@@ -799,7 +926,10 @@ void CQQLoginDlg::BatchStartQQ()
 		{
 			lret = m_an.RunApp(strQQPath.GetBuffer(), 2);
 		}
-		
+
+		CHandle hProcess((HANDLE)lret);
+		//LOG_INFO <<"QQ句柄:" << (LONG)m_an.FindWindowByProcessId(GetProcessId(hProcess), _T("TXGuiFoundation"), _T("QQ"));
+
 		long dt = 10;
 		_stscanf_s(m_strInterval.GetBuffer(), _T("%d"), &dt);
 		if (dt < 5)
@@ -816,122 +946,40 @@ void CQQLoginDlg::BatchStartQQ()
 		}
 
 		LOG_INFO << dt << "检查QQ是否启动完成,等待时间" << fTime;
-		if (m_bExit)
-		{
-			return;
-		}
 
-		long qqHwnd = m_an.WaitWindow(_T("TXGuiFoundation"), _T("QQ"), 495, 470, 10);
-		ASSERT(qqHwnd != 0);
-		if (qqHwnd > 0)
-		{
-			long x1, x2, y1, y2;
-			m_an.GetClientRect(qqHwnd, &x1, &x2, &y1, &y2);
-			if (x2 > 0 && y2 > 0)
-			{
-				m_dm.SetFindX(x2);
-				m_dm.SetFindY(y2);
-				long nImgId = m_dm.WaitImg2(x1, x2, y1, y2, _T("提示.bmp|登.bmp|取.bmp|验证.bmp|自.bmp|登录中.bmp"), 1.0);
-				LOG_INFO << "查找图片结果:" << nImgId;
-				switch (nImgId)
-				{
-				case 0:  //已经登录成功
-				{
-					info.bLogin = true;
-					break;
-				}
-				case 1:  //还在登录界面
-				{
-					info.bLogin = (m_dm.WaitStr2(x1, x2, y1, y2, _T("重复"), _T("b@f9f3d3-101010"), 1.0) > -1);
-					LOG_INFO << "是否已经重复登录:" << info.bLogin;
-					m_an.SetWindowState(qqHwnd, 0);
-					break;
-				}
-				case 2:   //等待登录
-				{
-					bool bSuccess = true;
-					COleDateTime t = COleDateTime::GetCurrentTime();
-					//等待登录成功
-					while (IsWindow((HWND)qqHwnd) && m_bExit)
-					{
-						m_an.Delays(100, 500);
-						COleDateTimeSpan sp = COleDateTime::GetCurrentTime() - t;
-						if (sp.GetMinutes() > 5) //超时退出
-						{
-							bSuccess = false;
-							break;
-						}
-						m_an.Delays(100, 500);
-					}
-					info.bLogin = bSuccess;
-					break;
-				}
-				case 4:
-				{
-					info.bLogin = true;
-					m_an.SetWindowState(qqHwnd, 0);
-					m_listQQ.SetItemText(i, 2, _T("设备验证"));
-					break;
-				}
-				case 5:      //自动登录没有选中
-				{
-					m_an.SetWindowState(qqHwnd, 0);  //关闭窗口
-					info.bLogin = true;
-					break;
-				}
-				case 6:
-				{
-					while (m_dm.WaitImg2(x1, x2, y1, y2, _T("登录中*.bmp"), 1.0) > PLUG_FAILED)
-					{
-						m_an.Delays(100, 200);
-					}
-					break;
-				}
-				default:
-					break;
-				}
+		CheckQQInterface(info, nStartCount, i);
 
-				if (info.bLogin)
-				{
-					GetLoginQQ();
-					m_listQQ.SetItemText(i, 2, lret != 0 ? L"成功" : L"失败");
-					i++;
-					continue;
-				}
-			}
-		}
-		qqHwnd = m_an.WaitWindow(_T("TXGuiFoundation"), _T("QQ"), 300, 710);
-		LOG_INFO << "QQ登录成功的窗口句柄:" << qqHwnd;
-		//判断QQ是否启动成功
-		if (m_qqMgr.CheckQQInterface() || qqHwnd <= 0 || m_qqMgr.GetQQProcessNum() > nStartCount)
-		{
-			m_qqMgr.CloseQQStartWnd();
-		}
-
-		if (qqHwnd > 0)
-		{
-			m_an.SetWindowState(qqHwnd, 3);
-			info.hWnd = (HWND)qqHwnd;
-			m_an.MoveWindow(qqHwnd, info.pt.x, info.pt.y);
-			Delays(100, 200);
-		}
-
-		if (m_bExit)
-		{
-			return;
-		}
 		GetLoginQQ();
 
-		m_listQQ.SetItemText(i, 2, lret != 0 ? L"成功" : L"失败");
+		m_listQQ.SetItemText(i, 2, info.bLogin ? L"成功" : L"失败");
 		i++;
 	}
-
+	GetLoginQQ();
 	m_qqMgr.CloseQQStartWnd();
 	m_qqMgr.CloseQQ();
 	LOG_INFO << nCount << " 个QQ号全部启动完成";
 
 
 }
+
+//输入密码
+void CQQLoginDlg::InputPassword(const generic_string& password)
+{
+	ASSERT(!password.empty());
+	LOG_INFO << "输入密码:" << password;
+	if (m_dm.WaitImg(_T("密码*.bmp"), 0.5) > PLUG_FAILED)
+	{
+		LOG_INFO << "找到的坐标:" << m_dm.GetImgX() << "," << m_dm.GetImgY();
+		m_dm.LClick(m_dm.GetImgX() + 40, m_dm.GetImgY());
+		Delays(1000, 2000);
+		m_an.KeyPressStr(password.c_str(), 50);
+		Delays(1000, 2000);
+		m_an.KeyPress(13);
+		Delays(1000, 2000);
+	}
+
+}
+
 //启动QQ
 void CQQLoginDlg::RunQQApp(LPCTSTR pszHistory)
 {
@@ -951,10 +999,11 @@ void CQQLoginDlg::GetQQNickName(LPCTSTR pszQQ)
 {
 	try
 	{
-
+		//dir \\.\pipe\\ | findstr "QQ_" | findstr "_pipe"
 		//TCHAR szUrl[] = _T("http://localhost.ptlogin2.qq.com:4300/mc_get_uins");
 		CString strUrl;
-		strUrl.Format(_T("https://r.qzone.qq.com/fcg-bin/cgi_get_portrait.fcg?uins=%s"), pszQQ);
+		//strUrl.Format(_T("https://r.qzone.qq.com/fcg-bin/cgi_get_portrait.fcg?uins=%s"), pszQQ);
+		strUrl.Format(_T("https://api.usuuu.com/qq/%s"), pszQQ);
 
 		Ryeol::CHttpClientW			m_objHttpClient;
 		Ryeol::CHttpResponse_ptr	pobjRes;
@@ -980,15 +1029,35 @@ void CQQLoginDlg::GetQQNickName(LPCTSTR pszQQ)
 
 		if (retstr.empty())
 			return;
-		using namespace AnStrings;
+		auto sName = retstr.mid("\"name\"", ",");
+		sName.replace(":", "");
+		sName.replace("\"", "");
+		if (!sName.empty())
+		{
+			m_qqStatusMap[pszQQ].name = CCodeConvert::Utf8ToUnicode(sName.c_str());
+		}
+		//auto sName2= AnStrings::CCodeConvert::AnsiToUTF8(sName.c_str());
+
+
+
+			/*auto tmpstr1 = CCodeConvert::GbkToUnicode(sName.c_str());
+			LOG_INFO << CCodeConvert::AnsiToUTF8(sName.c_str());
+			LOG_INFO << CCodeConvert::UTF8ToAnsi(sName.c_str());
+			LOG_INFO << CCodeConvert::GB2312ToUnicode(sName.c_str());
+			LOG_INFO << CCodeConvert::GB2312ToUTF8(sName.c_str());
+			LOG_INFO << tmpstr1;*/
+		return;
+
 
 		Json::CharReaderBuilder b;
 		std::shared_ptr<Json::CharReader> JsonReader(b.newCharReader());
 		Json::Value JsonRoot;
 		anstringA errs;
 
-		anstringA tmpstr = retstr.mid("(", ")");
-
+		anstringA tmpstr = retstr.mid("{", "}");
+		if (tmpstr.empty()) {
+			tmpstr = retstr.mid("(", ")");
+		}
 		JsonReader->parse(tmpstr.c_str(), tmpstr.c_str() + tmpstr.length(), &JsonRoot, &errs);
 
 		switch (JsonRoot.type())
@@ -1036,6 +1105,12 @@ void CQQLoginDlg::GetQQNickName(LPCTSTR pszQQ)
 							{
 							case Json::stringValue:
 							{
+								LOG_INFO << "QQ昵称:" << jsVal.asCString();
+								LOG_INFO << CCodeConvert::AnsiToUTF8(jsVal.asCString());
+								LOG_INFO << CCodeConvert::UTF8ToAnsi(jsVal.asCString());
+								LOG_INFO << CCodeConvert::GB2312ToUnicode(jsVal.asCString());
+								LOG_INFO << CCodeConvert::GB2312ToUTF8(jsVal.asCString());
+
 								auto tmpstr1 = CCodeConvert::GbkToUnicode(jsVal.asCString());
 								if (tmpstr1.find(_T("\\u")) != anstringA::npos)
 								{
@@ -1074,6 +1149,11 @@ void CQQLoginDlg::GetQQNickName(LPCTSTR pszQQ)
 			members.swap(tmp);
 			break;
 		}
+		case Json::stringValue:
+		{
+			LOG_INFO << JsonRoot.asString();
+			break;
+		}
 		default:
 			LOG_INFO << "Json::ValueType : " << JsonRoot.type();
 			ASSERT(FALSE);
@@ -1104,6 +1184,29 @@ void CQQLoginDlg::GetLoginQQ()
 			nWidth = m_an.GetScreenWidth();
 
 		//m_qqMgr.SetQQWndState(3);
+		string_Map accountMap;
+		const generic_string pattern = _T("----");
+		auto sFileInfo = m_an.ReadFile(_T("QQ账号密码.txt"));
+		if (!sFileInfo.empty())
+		{
+			strings::StringTokenizer token(sFileInfo, _T("\r\n"));
+			generic_string::size_type pos;
+			
+			while (token.hasNext())
+			{
+				auto tempstr = token.getNext();
+				pos = tempstr.find(pattern);
+				if (pos<tempstr.size())
+				{
+					auto account = tempstr.substr(0, pos);
+					auto password = tempstr.substr(pos + pattern.size());
+					accountMap[account] = password;
+					m_qqStatusMap[account].password = password;
+					m_qqStatusMap[account].account = account;
+				}
+			}
+
+		}
 
 		string_Map qqMap = m_qqMgr.GetLoginQQNumeric();
 		size_t i = 1;
@@ -1118,7 +1221,8 @@ void CQQLoginDlg::GetLoginQQ()
 				info.pt.x -= nWidth;
 
 			info.name = it->second;
-
+			info.account = it->first;
+			info.password = accountMap[info.account];
 			m_qqStatusMap.insert(it->first, info);
 			GetQQNickName(it->first.c_str());
 		}
@@ -1632,7 +1736,7 @@ void CQQLoginDlg::OnDestroy()
 	m_qqStatusMap.clear();
 	qqInfo_Map tmp;
 	m_qqStatusMap.swap(tmp);
-	
+
 	m_an.DestoryObject();
 
 }
