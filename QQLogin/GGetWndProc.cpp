@@ -1,4 +1,4 @@
-
+Ôªø
 #include "stdafx.h"
 #include "GGetWndProc.h"
 
@@ -32,7 +32,7 @@ UINT WINAPI GGetWndProc::threadProc(LPVOID lpVoid)
 	LONG_PTR fnGetWindowLong = (LONG_PTR)GetWindowLongA;
 	if(::IsWindowUnicode(hWndTarget)) fnGetWindowLong = (LONG_PTR)GetWindowLongW;
 		
-	BYTE* fnStartAddr = NULL;		//‘∂≥Ãø’º‰∑÷≈‰µƒ∆ ºµÿ÷∑
+	BYTE* fnStartAddr = NULL;		//ËøúÁ®ãÁ©∫Èó¥ÂàÜÈÖçÁöÑËµ∑ÂßãÂú∞ÂùÄ
 	const int nCodeLen = 34;
 	BYTE szCode[nCodeLen];
 	memset(szCode,0x90,sizeof(szCode));
@@ -67,7 +67,7 @@ UINT WINAPI GGetWndProc::threadProc(LPVOID lpVoid)
 		MAKE_PUSH_32MM(szCode+23,dwThreadHost);			//push dwThreadHost		//58 hWndHost		//5
 		MAKE_CALL_CODE(szCode+28,fnPostMessageA,fnStartAddr+28);
 														//call PostThreadMessageA		E8 (fnSendMessageA - xxx)	//5
-		DWORD dwWritten = 0;
+		SIZE_T dwWritten = 0;
 		if(!WriteProcessMemory(hProcess,fnStartAddr,(void*)szCode,nCodeLen,&dwWritten))
 			__leave;
 

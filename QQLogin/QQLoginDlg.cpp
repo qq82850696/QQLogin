@@ -409,6 +409,43 @@ void CQQLoginDlg::ScreenShot(void)
 	GlobalFree(lpdata);
 }
 
+static BOOL CALLBACK EnumQQNumberProc(HWND hWnd, LPARAM lParam) {
+
+	TCHAR name[MAX_PATH] = { 0 };
+	const TCHAR rp[] = L"qqexchangewnd_shortcut_prefix_";
+	DWORD dwPID = 0;
+	auto l = _tcslen(rp);
+	GetWindowText(hWnd, name, CountArray(name));
+
+	if (_tcsstr(name, rp)) {
+		LOG_INFO << hWnd << ":" << name + l;
+	}
+	return TRUE;
+}
+
+typedef std::vector<HWND>  vecHWND;
+static vecHWND g_qqAll;
+
+
+static BOOL CALLBACK EnumQQProc(HWND hWnd, LPARAM lParam) 
+{
+	TCHAR szName[MAX_PATH];
+	GetWindowText(hWnd, szName, CountArray(szName));
+
+	TCHAR szClass[MAX_PATH];
+	GetClassName(hWnd, szClass, CountArray(szClass));
+
+	if (!generic_stricmp(szName, _T("QQ")) && !generic_stricmp(szClass, _T("TXGuiFoundation"))) 
+	{
+		g_qqAll.emplace_back(hWnd);
+		
+	}
+
+
+
+	return TRUE;
+}
+
 BOOL CQQLoginDlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
@@ -474,8 +511,6 @@ BOOL CQQLoginDlg::OnInitDialog()
 		//m_an.RegAniu(L"802654b34a8145cfbde889eb8d64c163");
 		ANPLUG_ASSERT(m_an.IsValid(), "CreateObject m_an Faild!");
 		
-		//m_an.EndProcessByName(_T("QQ.exe"));
-		LOG_ERROR << m_an.GetPath();
 		CString strAppPath;
 		DWORD dwRet = GetModuleFileName(NULL, strAppPath.GetBufferSetLength(MAX_PATH), MAX_PATH);
 		strAppPath.ReleaseBufferSetLength(dwRet);
@@ -503,6 +538,13 @@ BOOL CQQLoginDlg::OnInitDialog()
 			m_dm.SetDict(0, _T("qqDict.txt"));
 		}
 		
+		EnumWindows(EnumQQProc, (LPARAM)this);
+		LOG_INFO << m_an.EnumWindowByProcess(_T("QQ.exe"), _T("qqexchangewnd_shortcut_prefix_"), nullptr, 1);
+	
+
+		//LOG_INFO << "QQ句柄:" << m_an.EnumWindowBySize(_T("QQ.exe"), _T("QQ"), _T("TXGuiFoundation"), 300, 710, 3);
+
+		//LOG_INFO << "QQ句柄:" << m_qqMgr.FindQQWndBySize(_T("TXGuiFoundation"), _T("QQ"), 300, 710);
 		//InputPassword(_T("Wo.Cao-Ni*904302"));
 		//m_an.RunApp(_T("E:\\实用工具\\PYG工具包\\飘云阁工具箱.exe"), 0);
 		//m_an.RunApp(_T("E:\\实用工具\\按键精灵工具包\\VStart.exe"), 0);
@@ -739,13 +781,13 @@ bool CQQLoginDlg::CopyQQFile(const CString& strItem)
 		m_cbDocPath.GetLBText(j, strLBText);
 		::DeleteFile(strLBText.GetBuffer());
 		::CopyFile(strHistory.GetBuffer(), strLBText.GetBuffer(), TRUE);
-		VERIFY(TRUE == m_an.DeleteFile(strLBText.GetBuffer()));
+		 m_an.DeleteFile(strLBText.GetBuffer());
 		CryptoLib::STRX md5_1, md5_2;
+		md5_1 = CryptoLib::Hash_MD5::GenerateFile(strHistory.GetString());
 		for (size_t i = 0; i < 5; i++)
 		{
-			VERIFY(TRUE == m_an.CopyFile(strHistory.GetBuffer(), strLBText.GetBuffer()));
+			m_an.CopyFile(strHistory.GetBuffer(), strLBText.GetBuffer());
 			m_an.Delays(10, 30);
-			md5_1 = CryptoLib::Hash_MD5::GenerateFile(strHistory.GetString());
 			md5_2 = CryptoLib::Hash_MD5::GenerateFile(strLBText.GetString());
 			if (!md5_1.CompareNoCase(md5_2))
 			{
@@ -844,6 +886,7 @@ bool CQQLoginDlg::CheckQQInterface(qqInfo& info, int nStartCount, int i)
 			}
 		}
 	}
+	//m_qqMgr.IsQQRunning(info.account.c_str());
 	qqHwnd = m_an.WaitWindow(_T("TXGuiFoundation"), _T("QQ"), 300, 710);
 	LOG_INFO << "QQ登录成功的窗口句柄:" << qqHwnd;
 	//判断QQ是否启动成功
@@ -1214,7 +1257,7 @@ void CQQLoginDlg::GetLoginQQ()
 		{
 			qqInfo info;
 			info.bLogin = true;
-			info.pt.x = 300 * i;
+			info.pt.x = long(300 * i);
 			info.pt.y = -2;
 
 			if (info.pt.x > nWidth)

@@ -113,9 +113,20 @@ bool CQQManager::RunQQApp(LPCTSTR pszQQPath, LPCTSTR pszHistoryPath, LPCTSTR psz
 
 	strHistory.Format(L"%s\\%s\\History.db", m_an.GetDir(4).c_str(), pszHistoryPath);
 
-	VERIFY(m_an.DeleteFile(pszDocPath));
-	VERIFY(m_an.CopyFile(strHistory.GetBuffer(), pszDocPath,TRUE));
-	
+	m_an.DeleteFile(pszDocPath);
+	m_an.CopyFile(strHistory.GetBuffer(), pszDocPath,TRUE);
+	CryptoLib::STRX md5_1, md5_2;
+	md5_1 = CryptoLib::Hash_MD5::GenerateFile(strHistory.GetString());
+	for (size_t i = 0; i < 5; i++)
+	{
+		m_an.CopyFile(strHistory.GetBuffer(), pszDocPath, TRUE);
+		m_an.Delays(10, 30);
+		md5_2 = CryptoLib::Hash_MD5::GenerateFile(pszDocPath);
+		if (!md5_1.CompareNoCase(md5_2))
+		{
+			break;
+		}
+	}
 	m_an.RunApp(pszQQPath, 0);
 	m_an.DelayEx(nDelay, 2);
 
