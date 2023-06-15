@@ -62,7 +62,7 @@
   <ImportGroup Label="Shared">
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <Import Project="C:\Users\AniuSoft\AppData\Local\Microsoft\MSBuild\v4.0\Microsoft.Cpp.Win32.user.props" />
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -76,7 +76,6 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <TargetName>$(ProjectName)D</TargetName>
-    <LibraryPath>F:\VC\;$(LibraryPath)</LibraryPath>
     <LibraryWPath>D:\Program Files (x86)\Visual Leak Detector\bin\Win32;$(LibraryWPath)</LibraryWPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -101,6 +100,7 @@
       <AssemblerOutput>All</AssemblerOutput>
       <StringPooling>true</StringPooling>
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <AdditionalIncludeDirectories>../../AnPlug;../../AnPlug/AnPlug</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -253,6 +253,7 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="E:\图标素材\Win10 系统图标\imageres\imageres_4.ico" />
+    <Image Include="res\imageres_4.ico" />
     <Image Include="res\QQ2012.ico" />
     <Image Include="res\QQLogin.ico" />
     <Image Include="res\腾讯QQ2011.lnk.ico" />

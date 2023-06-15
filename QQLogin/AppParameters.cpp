@@ -5,7 +5,7 @@
 #define new DEBUG_NEW
 #endif
 
-using namespace tinyxml;
+using namespace tinyxml2;
 
 CAppParameters* CAppParameters::_pSelf = new CAppParameters();
 
@@ -17,105 +17,108 @@ CAppParameters::CAppParameters()
 
 CAppParameters::~CAppParameters()
 {
-	LOG_INFO << _T("CAppParameters");
+    LOG_INFO << _T("CAppParameters");
 }
 
 //读取参数设置
 bool CAppParameters::getParametersFromXmlTree()
 {
-	if (!_pXmlUserDoc)
-		return false;
+    if (!this->_pXmlplus)
+        return false;
 
-	tinyxml::TiXmlNode* root = _pXmlUserDoc->FirstChild(ELEMENT_ROOT);
-	if (!root)
-		return false;
+    auto root = _pXmlplus->GetRootElement();
+    if (!root)
+        return false;
 
-	//读取QQ登录设置
-	ReadQQLoginHistory(root);
+    //读取QQ登录设置
+    ReadQQLoginHistory(root);
 
-	return true;
+    return true;
 }
 
 //释放对象
 void CAppParameters::DestroyInstance()
 {
-	if (_pSelf)
-	{
-		delete _pSelf;
-		_pSelf = nullptr;
-	}
+    if (_pSelf)
+    {
+        delete _pSelf;
+        _pSelf = nullptr;
+    }
 }
 //读取QQ登录设置
-void CAppParameters::ReadQQLoginHistory(TiXmlNode* node)
+void CAppParameters::ReadQQLoginHistory(tinyxml2::XMLElement* node)
 {
-	tinyxml::TiXmlNode* qQLoginHistoryRoot = node->FirstChildElement(ELEMENT_QQLOGIN);
-	if (!qQLoginHistoryRoot) return;
+    auto qQLoginHistoryRoot = node->FirstChildElement(ELEMENT_QQLOGIN);
+    if (!qQLoginHistoryRoot) return;
 
-	(qQLoginHistoryRoot->ToElement())->Attribute(TEXT("QQPathsIndex"), (int*)& _qqLoginHistory._nQQPathsIndex);
-	(qQLoginHistoryRoot->ToElement())->Attribute(TEXT("DocPathsIndex"), (int*)& _qqLoginHistory._nDocPathsIndex);
-	(qQLoginHistoryRoot->ToElement())->Attribute(TEXT("QQStartInterval"), (int*)& _qqLoginHistory._QQStartInterval);
 
-	for (tinyxml::TiXmlNode* childNode = qQLoginHistoryRoot->FirstChildElement(TEXT("QQPaths")); childNode;
-		childNode = childNode->NextSibling(TEXT("QQPaths")))
-	{
-		const TCHAR* fileFilter = (childNode->ToElement())->Attribute(TEXT("name"));
-		if (fileFilter)
-		{
-			CStrings tempstr = fileFilter;
-			_qqLoginHistory._QQPaths.push_back(tempstr);
-		}
-	}
+    getXmlDoc()->GetElementValue(qQLoginHistoryRoot, TEXT("QQPathsIndex"), _qqLoginHistory._nQQPathsIndex);
+    getXmlDoc()->GetElementValue(qQLoginHistoryRoot, TEXT("DocPathsIndex"), _qqLoginHistory._nDocPathsIndex);
+    getXmlDoc()->GetElementValue(qQLoginHistoryRoot, TEXT("QQStartInterval"), _qqLoginHistory._QQStartInterval);
 
-	for (tinyxml::TiXmlNode* childNode = qQLoginHistoryRoot->FirstChildElement(TEXT("QQDocPaths")); childNode;
-		childNode = childNode->NextSibling(TEXT("QQDocPaths")))
-	{
-		const TCHAR* fileFilter = (childNode->ToElement())->Attribute(TEXT("name"));
-		if (fileFilter)
-		{
-			_qqLoginHistory._QQDocPaths.push_back(CStrings(fileFilter));
-		}
-	}
+    for (auto childNode = qQLoginHistoryRoot->FirstChildElement("QQPaths"); childNode;
+        childNode = childNode->NextSiblingElement("QQPaths"))
+    {
+        auto fileFilter = childNode->FindAttribute("name");
+        if (fileFilter != nullptr)
+        {
+            CStrings tempstr = CA2T(fileFilter->Value());
+            _qqLoginHistory._QQPaths.push_back(tempstr);
+        }
+    }
+
+    for (auto childNode = qQLoginHistoryRoot->FirstChildElement("QQDocPaths"); childNode;
+        childNode = childNode->NextSiblingElement("QQDocPaths"))
+    {
+        auto fileFilter = childNode->FindAttribute("name");
+        if (fileFilter != nullptr)
+        {
+            CStrings tempstr = CA2T(fileFilter->Value());
+            _qqLoginHistory._QQDocPaths.push_back(tempstr);
+        }
+
+    }
 
 }
 //保存QQ登录设置
 bool CAppParameters::WriteQQLoginHistory()
 {
-	if (!_pXmlUserDoc) return false;
+    if (!getXmlDoc()) return false;
 
-	tinyxml::TiXmlNode* nppRoot = _pXmlUserDoc->FirstChild(ELEMENT_ROOT);
-	if (!nppRoot)
-	{
-		nppRoot = _pXmlUserDoc->InsertEndChild(tinyxml::TiXmlElement(ELEMENT_ROOT));
-	}
-
-	tinyxml::TiXmlNode* qQLoginHistoryRoot = nppRoot->FirstChildElement(ELEMENT_QQLOGIN);
-	if (!qQLoginHistoryRoot)
-	{
-		tinyxml::TiXmlElement element(ELEMENT_QQLOGIN);
-		qQLoginHistoryRoot = nppRoot->InsertEndChild(element);
-	}
-	qQLoginHistoryRoot->Clear();
-
-	(qQLoginHistoryRoot->ToElement())->SetAttribute(TEXT("QQStartInterval"), _qqLoginHistory._QQStartInterval);
-	(qQLoginHistoryRoot->ToElement())->SetAttribute(TEXT("QQPathsIndex"), _qqLoginHistory._nQQPathsIndex);
-	(qQLoginHistoryRoot->ToElement())->SetAttribute(TEXT("DocPathsIndex"), _qqLoginHistory._nDocPathsIndex);
+    tinyxml2::XMLElement* nppRoot = getXmlDoc()->FindChildElement(ELEMENT_ROOT);
+    if (!nppRoot)
+    {
+        nppRoot = getXmlDoc()->AddElement(ELEMENT_ROOT);
+    }
 
 
+    auto qQLoginHistoryRoot = nppRoot->FirstChildElement(ELEMENT_QQLOGIN);
+    if (!qQLoginHistoryRoot)
+    {
+        qQLoginHistoryRoot = getXmlDoc()->AddElement(_T(ELEMENT_QQLOGIN));
+    }
 
-	tinyxml::TiXmlElement hist_element(_T(""));
-	hist_element.SetValue(TEXT("QQPaths"));
-	for (size_t i = 0, len = _qqLoginHistory._QQPaths.size(); i < len; ++i)
-	{
-		(hist_element.ToElement())->SetAttribute(TEXT("name"), _qqLoginHistory._QQPaths[i]);
-		qQLoginHistoryRoot->InsertEndChild(hist_element);
-	}
 
-	hist_element.SetValue(TEXT("QQDocPaths"));
-	for (size_t i = 0, len = _qqLoginHistory._QQDocPaths.size(); i < len; ++i)
-	{
-		(hist_element.ToElement())->SetAttribute(TEXT("name"), _qqLoginHistory._QQDocPaths[i]);
-		qQLoginHistoryRoot->InsertEndChild(hist_element);
-	}
+    getXmlDoc()->AddElement(qQLoginHistoryRoot, TEXT("QQStartInterval"), _qqLoginHistory._QQStartInterval);
+    getXmlDoc()->AddElement(qQLoginHistoryRoot, TEXT("QQPathsIndex"), _qqLoginHistory._nQQPathsIndex);
+    getXmlDoc()->AddElement(qQLoginHistoryRoot, TEXT("DocPathsIndex"), _qqLoginHistory._nDocPathsIndex);
 
-	return true;
+
+    auto hist_element = getXmlDoc()->AddElement(qQLoginHistoryRoot, TEXT("QQPaths"), _T(""));
+    for (size_t i = 0, len = _qqLoginHistory._QQPaths.size(); i < len; ++i)
+    {
+        CStringA name;
+        name.Format("name%d", i);
+        hist_element->SetAttribute(name.GetString(), CT2A(_qqLoginHistory._QQPaths[i].GetData()));
+    }
+
+    hist_element = getXmlDoc()->AddElement(qQLoginHistoryRoot, TEXT("QQDocPaths"), _T(""));
+    for (size_t i = 0, len = _qqLoginHistory._QQDocPaths.size(); i < len; ++i)
+    {
+        CStringA name;
+        name.Format("name%d", i);
+        hist_element->SetAttribute(name.GetString(), CT2A(_qqLoginHistory._QQDocPaths[i].GetData()));
+    }
+
+    return true;
 }

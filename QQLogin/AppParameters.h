@@ -1,44 +1,44 @@
-#ifndef ANIU_APPPARAMETERS_H_
+ï»¿#ifndef ANIU_APPPARAMETERS_H_
 #define ANIU_APPPARAMETERS_H_
 #pragma once
 //////////////////////////////////////////////////////////////////////////
 
-// ½á¹¹Ìå¶¨Òå
+// ç»“æ„ä½“å®šä¹‰
 typedef struct QQLoginHistory final
 {
-	vectorCStrings _QQPaths;		   //QQÂ·¾¶ÁĞ±í
-	vectorCStrings _QQDocPaths;	   //QQÎÄµµÁĞ±í
-	int           _nQQPathsIndex;  //µ±Ç°Ê¹ÓÃµÄQQÂ·¾¶Ë÷Òı
-	int           _nDocPathsIndex; //µ±Ç°Ê¹ÓÃµÄQQÎÄµµË÷Òı
-	int           _QQStartInterval;//QQÆô¶¯¼ä¸ô
-}QQLOGINHISTORY,*PQQLOGINHISTORY;
+    vectorCStrings _QQPaths;		   //QQè·¯å¾„åˆ—è¡¨
+    vectorCStrings _QQDocPaths;	   //QQæ–‡æ¡£åˆ—è¡¨
+    int           _nQQPathsIndex;  //å½“å‰ä½¿ç”¨çš„QQè·¯å¾„ç´¢å¼•
+    int           _nDocPathsIndex; //å½“å‰ä½¿ç”¨çš„QQæ–‡æ¡£ç´¢å¼•
+    int           _QQStartInterval;//QQå¯åŠ¨é—´éš”
+}QQLOGINHISTORY, * PQQLOGINHISTORY;
 
 //////////////////////////////////////////////////////////////////////////
 
-#define ELEMENT_QQLOGIN             _T("QQLogin")
+#define ELEMENT_QQLOGIN             "QQLogin"
 //////////////////////////////////////////////////////////////////////////
 class CAppParameters :
-	public CAniuParameters
+    public CAniuParameters
 {
 private:
-	static CAppParameters *_pSelf;
-	QQLoginHistory         _qqLoginHistory;
-	CAppParameters();
-	
+    static CAppParameters* _pSelf;
+    QQLoginHistory         _qqLoginHistory;
+    CAppParameters();
+
 public:
-	~CAppParameters();
-	//»ñÈ¡µ±Ç°¶ÔÏó
-	static CAppParameters * GetInstance() { return _pSelf; };
-	//¶ÁÈ¡²ÎÊıÉèÖÃ
-	bool getParametersFromXmlTree();
-	//ÊÍ·Å¶ÔÏó
-	void DestroyInstance();
-	//»ñÈ¡µÇÂ¼ÉèÖÃ
-	QQLoginHistory& GetQQLoginHistory() {return _qqLoginHistory;};
-	//¶ÁÈ¡QQµÇÂ¼ÉèÖÃ
-	void ReadQQLoginHistory(tinyxml::TiXmlNode *node);
-	//±£´æQQµÇÂ¼ÉèÖÃ
-	bool WriteQQLoginHistory();
+    ~CAppParameters();
+    //è·å–å½“å‰å¯¹è±¡
+    static CAppParameters* GetInstance() { return _pSelf; };
+    //è¯»å–å‚æ•°è®¾ç½®
+    bool getParametersFromXmlTree();
+    //é‡Šæ”¾å¯¹è±¡
+    void DestroyInstance();
+    //è·å–ç™»å½•è®¾ç½®
+    QQLoginHistory& GetQQLoginHistory() { return _qqLoginHistory; };
+    //è¯»å–QQç™»å½•è®¾ç½®
+    void ReadQQLoginHistory(tinyxml2::XMLElement* node);
+    //ä¿å­˜QQç™»å½•è®¾ç½®
+    bool WriteQQLoginHistory();
 };
 
 
