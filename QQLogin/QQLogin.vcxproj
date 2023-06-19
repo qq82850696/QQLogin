@@ -175,7 +175,7 @@
       <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <PostBuildEvent>
-      <Command>xcopy /y /i /q /r /s /d "$(SolutionDir)Debug\res\*" "F:\QQLogin\res\"</Command>
+      <Command>xcopy /y /i /q /r /s /d "$(SolutionDir)$(Configuration)\res\*" "H:\QQLogin\res\"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>复制资源文件</Message>

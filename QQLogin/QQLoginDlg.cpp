@@ -845,6 +845,10 @@ bool CQQLoginDlg::CheckQQInterface(qqInfo& info, int nStartCount, int i)
             {
                 while (m_an.GetWindowState(qqHwnd, 0) && !m_bExit && m_dm.WaitImg(_T("登录中*.bmp"), 1.0) > PLUG_FAILED)
                 {
+                    while (m_dm.WaitStr(_T("拼图|请点击|扫"), _T("545454-545454"), 0.2) > PLUG_FAILED)
+                    {
+                        m_an.Delays(1000, 2000);
+                    }
                     m_an.Delays(1000, 2000);
                     auto sRe = m_dm.WaitStrS(_T("重新|重复"), _T("434239-43423a"), 0.5);
                     if (sRe.empty())
@@ -912,6 +916,16 @@ bool CQQLoginDlg::CheckQQInterface(qqInfo& info, int nStartCount, int i)
     //m_qqMgr.IsQQRunning(info.account.c_str());
     qqHwnd = m_an.WaitWindow(_T("TXGuiFoundation"), _T("QQ"), 300, 710);
     LOG_INFO << "QQ登录成功的窗口句柄:" << qqHwnd;
+
+    CString strHistory, strLBText, strCmd;
+    strHistory.Format(_T("%s\\%s\\History.db"), (LPCTSTR)m_QQCfgPath, info.account.c_str());
+
+    m_cbDocPath.GetLBText(0, strLBText);
+
+    strCmd.Format(_T("xcopy /y /s /q /i /r /d \"%s\" \"%s\""), (LPCTSTR)strLBText, (LPCTSTR)strHistory);
+
+    TSRuntime::RunCmd((LPCTSTR)strCmd);
+
     //判断QQ是否启动成功
     if (m_qqMgr.CheckQQInterface() || qqHwnd <= 0 || m_qqMgr.GetQQProcessNum() > nStartCount)
     {
@@ -1081,6 +1095,15 @@ void CQQLoginDlg::InputPassword(const generic_string& password)
 {
     ASSERT(!password.empty());
     LOG_INFO << "输入密码:" << password;
+    while (m_dm.WaitClickStr(_T("自"), _T("797979-7a7a7a"), 0.2) != PLUG_FAILED)
+    {
+        Delays(1000, 2000);
+        if (m_dm.WaitImg(_T("自*.bmp"), 0.2) != PLUG_FAILED)
+        {
+            break;
+        }
+    }
+
     if (m_dm.WaitImg(_T("密码*.bmp"), 0.5) > PLUG_FAILED)
     {
         LOG_INFO << "找到的坐标:" << m_dm.GetImgX() << "," << m_dm.GetImgY();
@@ -1090,6 +1113,10 @@ void CQQLoginDlg::InputPassword(const generic_string& password)
         Delays(1000, 2000);
         m_dm.KeyPress(VK_RETURN);
         Delays(1000, 2000);
+        while (m_dm.WaitStr(_T("拼图|请点击|扫"), _T("545454-545454"), 0.2) > PLUG_FAILED)
+        {
+            m_an.Delays(1000, 2000);
+        }
     }
     else
     {
@@ -1341,6 +1368,7 @@ void CQQLoginDlg::GetLoginQQ()
             info.name = it->second;
             info.account = it->first;
             info.password = accountMap[info.account];
+            ASSERT(info.password.empty());
             m_qqStatusMap.insert(it->first, info);
             GetQQNickName(it->first.c_str());
         }
