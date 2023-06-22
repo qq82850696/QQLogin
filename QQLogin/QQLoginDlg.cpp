@@ -141,6 +141,7 @@ BEGIN_MESSAGE_MAP(CQQLoginDlg, CDialogEx)
     ON_BN_CLICKED(IDC_CKMANUAL, &CQQLoginDlg::OnBnClickedCkmanual)
     ON_BN_CLICKED(IDC_BTNCALC, &CQQLoginDlg::OnBnClickedBtncalc)
     ON_WM_TIMER()
+    ON_WM_SHOWWINDOW()
 END_MESSAGE_MAP()
 
 // CQQLoginDlg 消息处理程序
@@ -913,9 +914,13 @@ bool CQQLoginDlg::CheckQQInterface(qqInfo& info, int nStartCount, int i)
             }
         }
     }
-    //m_qqMgr.IsQQRunning(info.account.c_str());
+
     qqHwnd = m_an.WaitWindow(_T("TXGuiFoundation"), _T("QQ"), 300, 710);
     LOG_INFO << "QQ登录成功的窗口句柄:" << qqHwnd;
+    if (m_qqMgr.IsQQRunning(info.account.c_str()))
+    {
+
+    }
 
     CString strHistory, strLBText, strCmd;
     strHistory.Format(_T("%s\\%s\\History.db"), (LPCTSTR)m_QQCfgPath, info.account.c_str());
@@ -924,7 +929,7 @@ bool CQQLoginDlg::CheckQQInterface(qqInfo& info, int nStartCount, int i)
 
     strCmd.Format(_T("xcopy /y /s /q /i /r /d \"%s\" \"%s\""), (LPCTSTR)strLBText, (LPCTSTR)strHistory);
 
-    TSRuntime::RunCmd((LPCTSTR)strCmd);
+    //TSRuntime::RunCmd((LPCTSTR)strCmd);
 
     //判断QQ是否启动成功
     if (m_qqMgr.CheckQQInterface() || qqHwnd <= 0 || m_qqMgr.GetQQProcessNum() > nStartCount)
@@ -1870,6 +1875,7 @@ void CQQLoginDlg::OnMshowmain()
 {
     // TODO: 在此添加命令处理程序代码
     ShowWindow(SW_SHOWNORMAL);
+    GetLoginQQ();
 }
 
 
@@ -2074,4 +2080,16 @@ void CQQLoginDlg::OnTimer(UINT_PTR nIDEvent)
         this->KillTimer(nIDEvent);
     }
     CDialogEx::OnTimer(nIDEvent);
+}
+
+
+void CQQLoginDlg::OnShowWindow(BOOL bShow, UINT nStatus)
+{
+    CDialogEx::OnShowWindow(bShow, nStatus);
+
+    // TODO: 在此处添加消息处理程序代码
+    if (bShow)
+    {
+        //GetLoginQQ();
+    }
 }

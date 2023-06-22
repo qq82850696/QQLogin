@@ -131,4 +131,5 @@ public:
     afx_msg void OnBnClickedCkmanual();
     afx_msg void OnBnClickedBtncalc();
     afx_msg void OnTimer(UINT_PTR nIDEvent);
+    afx_msg void OnShowWindow(BOOL bShow, UINT nStatus);
 };
